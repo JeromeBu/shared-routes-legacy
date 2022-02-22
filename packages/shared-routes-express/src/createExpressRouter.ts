@@ -1,3 +1,4 @@
+import { defineRoute, defineRoutes } from "shared-routes";
 import type { SharedRoute } from "shared-routes";
 import type { IRoute, RequestHandler, Router } from "express";
 import { z } from "zod";
@@ -53,3 +54,39 @@ export const createExpressSharedRouter = <
 
   return objectOfHandlers as any;
 };
+
+// minimale reproduction :
+
+const addTrucBodySchema = z.object({ truc: z.string() });
+
+const getTrucQuerySchema = z.object({ lala: z.string() });
+const getTrucOutputSchema = z.array(
+  z.object({ id: z.string(), name: z.string() })
+);
+
+const mySharedRoutes = defineRoutes({
+  addTruc: defineRoute({
+    verb: "post",
+    path: "/truc",
+    bodySchema: addTrucBodySchema,
+  }),
+  getTruc: defineRoute({
+    verb: "get",
+    path: "/truc",
+    querySchema: getTrucQuerySchema,
+    outputSchema: getTrucOutputSchema,
+  }),
+});
+
+declare function createGetType<
+  R extends Record<string, SharedRoute<unknown, unknown, unknown>>
+>(sharedRoutes: R): Record<keyof R, z.infer<R[keyof R]["bodySchema"]>>;
+
+const getType = createGetType(mySharedRoutes);
+
+const addTruc = getType.addTruc; // this is of type  void | {truc: string}
+const getTruc = getType.getTruc; // this is of type  void | {truc: string}
+
+// how to get ? :
+const addTrucExpected = getType.addTruc; // expecting type  {truc: string}
+const getTrucExpecetd = getType.getTruc; // expecting type  void
