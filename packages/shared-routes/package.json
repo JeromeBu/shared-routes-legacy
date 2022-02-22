@@ -1,0 +1,19 @@
+{
+  "name": "shared-routes",
+  "type": "module",
+  "version": "0.0.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "test": "jest",
+    "build": "rm -rf ./dist && tsc"
+  },
+  "devDependencies": {
+    "config": "workspace:*",
+    "tsconfig": "workspace:*",
+    "typescript": "^4.5.3"
+  },
+  "dependencies": {
+    "zod": "^3.11.6"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "shared-routes-express",
+  "type": "module",
+  "version": "0.0.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "test": "jest",
+    "build": "rm -rf ./dist && tsc"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "config": "workspace:*",
+    "tsconfig": "workspace:*",
+    "typescript": "^4.5.3"
+  },
+  "dependencies": {
+    "express": "^4.17.3",
+    "shared-routes": "workspace:*",
+    "zod": "^3.11.6"
+  }
+}

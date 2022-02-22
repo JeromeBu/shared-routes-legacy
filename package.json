@@ -9,12 +9,20 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
+    "test": "turbo run test",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
+    "@babel/core": "^7.17.5",
+    "@babel/preset-env": "^7.16.11",
+    "@babel/preset-typescript": "^7.16.7",
+    "@types/jest": "^27.4.0",
+    "babel-jest": "^27.5.1",
+    "jest": "^27.5.1",
     "prettier": "^2.5.1",
-    "turbo": "latest"
+    "turbo": "latest",
+    "typescript": "^4.5.3"
   },
   "engines": {
     "npm": ">=7.0.0",
