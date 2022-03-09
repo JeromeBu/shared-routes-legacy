@@ -9,7 +9,7 @@ type OptionalFields<Body, Query, Output> = {
 
 type CommonFields = {
   path: string;
-  verb: "get" | "post";
+  verb: "get" | "post" | "put" | "patch" | "delete";
 };
 
 type SharedRouteWithOptional<Body, Query, Output> = OptionalFields<

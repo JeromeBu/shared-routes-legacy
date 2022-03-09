@@ -25,7 +25,7 @@ const applyVerbAndPath = (
       return ({ body, query }: any, config: AxiosRequestConfig) =>
         axios.patch(route.path, body, { params: query, ...config });
     case "delete":
-      return ({ body, query }: any, config: AxiosRequestConfig) =>
+      return ({ query }: any, config: AxiosRequestConfig) =>
         axios.delete(route.path, { params: query, ...config });
     default:
       const shouldNotHappen: never = route.verb;
@@ -40,10 +40,13 @@ export const createAxiosSharedCaller = <
   sharedRoutes: R,
   axios: AxiosInstance
 ): {
-  [K in keyof R]: (params: {
-    body: z.infer<R[K]["bodySchema"]>;
-    query: z.infer<R[K]["querySchema"]>;
-  }) => Promise<z.infer<R[K]["outputSchema"]>>;
+  [K in keyof R]: (
+    params: {
+      body: z.infer<R[K]["bodySchema"]>;
+      query: z.infer<R[K]["querySchema"]>;
+    },
+    config?: AxiosRequestConfig
+  ) => Promise<z.infer<R[K]["outputSchema"]>>;
 } => {
   const objectOfHandlers = {} as Record<
     keyof R,

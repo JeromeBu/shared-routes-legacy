@@ -1,0 +1,22 @@
+{
+  "name": "shared-routes-supertest",
+  "type": "module",
+  "version": "0.0.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "test": "jest",
+    "build": "rm -rf ./dist && tsc"
+  },
+  "devDependencies": {
+    "config": "workspace:*",
+    "tsconfig": "workspace:*",
+    "typescript": "^4.5.3"
+  },
+  "dependencies": {
+    "@types/supertest": "^2.0.11",
+    "shared-routes": "workspace:*",
+    "supertest": "^6.2.2",
+    "zod": "^3.11.6"
+  }
+}

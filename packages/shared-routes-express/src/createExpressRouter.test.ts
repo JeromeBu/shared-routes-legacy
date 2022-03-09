@@ -32,20 +32,21 @@ describe("createExpressSharedRouter", () => {
       expressRouter
     );
 
-    expressSharedRouter.addTruc((req, res) => {
-      req.body; // I would like to have type {truc: lala} (from addTrucBodySchema)
-      req.query; // I would like to have type void (as no query params are provided for this route)
-      res.json(); // I would like to take void (as no output is provided for this route)
-    });
+    expressSharedRouter.addTruc(
+      (req, res, next) => {
+        next();
+      },
+      (req, res) => {
+        req.body; // has type {truc: lala} (from addTrucBodySchema)
+        req.query; // has type void (as no query params are provided for this route)
+        res.json(); // has type void (as no output is provided for this route)
+      }
+    );
 
-    expressSharedRouter.addTruc((req, res) => {
-      req.body; // I would like to have type void (from addTrucBodySchema)
-      req.query; // I would like to have type from getTrucQuerySchema
-      res.json(); // I would like to take type from getTrucOutputSchema
+    expressSharedRouter.getTruc((req, res) => {
+      req.body; // has type void (from addTrucBodySchema)
+      req.query; // has type { lala: string } from getTrucQuerySchema
+      res.json([{ id: "yolo", name: "alal" }]); // has type from getTrucOutputSchema
     });
-
-    expect(() =>
-      mySharedRoutes.getTruc.bodySchema.parse({ yo: "lala" })
-    ).toThrow();
   });
 });
