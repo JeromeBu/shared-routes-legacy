@@ -6,29 +6,36 @@ import { createSupertestSharedCaller } from "./createSupertestSharedCaller";
 import express, { Router } from "express";
 import bodyParser from "body-parser";
 
-const addTrucBodySchema = z.object({ truc: z.string() });
-const getTrucQuerySchema = z.object({ lala: z.string() });
-const getTrucOutputSchema = z.array(
-  z.object({ id: z.string(), name: z.string() })
-);
+type Book = { title: string; author: string };
+const bookSchema: z.Schema<Book> = z.object({
+  title: z.string(),
+  author: z.string(),
+});
 
 const mySharedRoutes = defineRoutes({
-  addTruc: defineRoute({
+  addBook: defineRoute({
     verb: "post",
-    path: "/truc",
-    bodySchema: addTrucBodySchema,
+    path: "/books",
+    bodySchema: bookSchema,
   }),
-  getTruc: defineRoute({
+  getAllBooks: defineRoute({
     verb: "get",
-    path: "/truc",
-    querySchema: getTrucQuerySchema,
-    outputSchema: getTrucOutputSchema,
+    path: "/books",
+    querySchema: z.object({ max: z.number() }),
+    outputSchema: z.array(bookSchema),
+  }),
+  getBookByTitle: defineRoute({
+    verb: "get",
+    path: `/books/:title`,
+    outputSchema: z.union([bookSchema, z.undefined()]),
   }),
 });
 
-const createExempleApp = (spy: (arg: any) => void) => {
+const createExempleApp = () => {
   const app = express();
   app.use(bodyParser.json());
+
+  const bookDB: Book[] = [];
 
   const expressRouter = Router();
   const expressSharedRouter = createExpressSharedRouter(
@@ -36,13 +43,20 @@ const createExempleApp = (spy: (arg: any) => void) => {
     expressRouter
   );
 
-  expressSharedRouter.getTruc((req, res) => {
-    return res.json([{ id: "my-id", name: "my name is " + req.query.lala }]);
+  expressSharedRouter.getAllBooks((req, res) => {
+    console.log("max", req.query.max);
+    console.log("typeof max", typeof req.query.max); // TODO type is wrong here, expecting number from schema but i am guessing query params are always converted to string
+    return res.json(bookDB);
   });
 
-  expressSharedRouter.addTruc((req, res) => {
-    spy(req.body);
+  expressSharedRouter.addBook((req, res) => {
+    bookDB.push(req.body);
     return res.json();
+  });
+
+  expressSharedRouter.getBookByTitle((req, res) => {
+    const book = bookDB.find((b) => b.title === req.params.title);
+    return res.json(book);
   });
 
   app.use(expressRouter);
@@ -52,31 +66,44 @@ const createExempleApp = (spy: (arg: any) => void) => {
 
 describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
   it("it create an express app and a supertest instance with the same sharedRoutes object", async () => {
-    const addedTruc: any[] = [];
-    const app = createExempleApp((thing) => addedTruc.push(thing));
+    const app = createExempleApp();
     const supertestRequest = supertest(app);
     const supertestSharedCaller = createSupertestSharedCaller(
       mySharedRoutes,
       supertestRequest
     );
 
-    const getTrucResponse = await supertestSharedCaller.getTruc({
-      body: undefined,
-      query: { lala: "lulu" },
+    const heyBook: Book = { title: "Hey", author: "Steeve" };
+    const addBookResponse = await supertestSharedCaller.addBook({
+      body: heyBook,
+      query: {},
+      params: {},
     });
-    expect(getTrucResponse.status).toBe(200);
-    expectToEqual(getTrucResponse.body, [
-      { id: "my-id", name: "my name is lulu" },
-    ]);
+    expect(addBookResponse.status).toBe(200);
+    expect(addBookResponse.body).toEqual(""); // type is void, but express sends "";
 
-    const providedTruc = { truc: "yolo" };
-    const addTrucResponse = await supertestSharedCaller.addTruc({
-      body: providedTruc,
-      query: undefined,
+    const otherBook: Book = { title: "Other book", author: "Somebody" };
+    await supertestSharedCaller.addBook({
+      body: otherBook,
+      query: {},
+      params: {},
     });
-    expect(addTrucResponse.status).toBe(200);
-    expect(addedTruc).toEqual([providedTruc]);
-    expect(addTrucResponse.body).toEqual(""); // type is void, but express sends "";
+
+    const getAllBooksResponse = await supertestSharedCaller.getAllBooks({
+      body: {},
+      query: { max: 5 },
+      params: {},
+    });
+    expect(getAllBooksResponse.status).toBe(200);
+    expectToEqual(getAllBooksResponse.body, [heyBook, otherBook]);
+
+    const fetchedBookResponse = await supertestSharedCaller.getBookByTitle({
+      body: {},
+      query: {},
+      params: { title: "Hey" },
+    });
+    expect(fetchedBookResponse.status).toBe(200);
+    expectToEqual(fetchedBookResponse.body, heyBook);
   });
 });
 

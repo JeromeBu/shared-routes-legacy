@@ -1,6 +1,7 @@
-import { defineRoute, defineRoutes } from "shared-routes";
+import { defineRoute, defineRoutes, PathParameters } from "shared-routes";
 import type { SharedRoute } from "shared-routes";
 import type { IRoute, RequestHandler, Router } from "express";
+import type { RouteParameters } from "express-serve-static-core";
 import { z } from "zod";
 
 const keys = <Obj extends Record<string, unknown>>(obj: Obj): (keyof Obj)[] =>
@@ -8,7 +9,7 @@ const keys = <Obj extends Record<string, unknown>>(obj: Obj): (keyof Obj)[] =>
 
 const assignHandlersToExpressRouter = (
   expressRouter: Router,
-  route: SharedRoute<any, any, any>
+  route: SharedRoute<any, any, any, any>
 ) => {
   switch (route.verb) {
     case "get":
@@ -34,14 +35,14 @@ const assignHandlersToExpressRouter = (
 };
 
 export const createExpressSharedRouter = <
-  R extends Record<string, SharedRoute<unknown, unknown, unknown>>
+  R extends Record<string, SharedRoute<string, unknown, unknown, unknown>>
 >(
   sharedRoutes: R,
   expressRouter: Router
 ): {
   [K in keyof R]: (
     ...handlers: RequestHandler<
-      unknown,
+      PathParameters<R[K]["path"]>,
       z.infer<R[K]["outputSchema"]>,
       z.infer<R[K]["bodySchema"]>,
       z.infer<R[K]["querySchema"]>,
