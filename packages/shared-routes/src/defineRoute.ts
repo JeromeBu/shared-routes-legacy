@@ -56,7 +56,3 @@ export const defineRoutes = <T extends Record<string, unknown>>(routes: {
 
   return routes;
 };
-
-export type SharedRoutesOptions = {
-  prefix?: string;
-};

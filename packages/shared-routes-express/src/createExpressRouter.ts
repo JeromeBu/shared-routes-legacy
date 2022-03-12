@@ -1,32 +1,49 @@
-import { defineRoute, defineRoutes, PathParameters } from "shared-routes";
-import type { SharedRoute } from "shared-routes";
+import type { SharedRoute, PathParameters } from "shared-routes";
 import type { IRoute, RequestHandler, Router } from "express";
-import type { RouteParameters } from "express-serve-static-core";
 import { z } from "zod";
+
+type ExpressSharedRouteOptions = {
+  withBodyValidation?: boolean;
+  withQueryValidation?: boolean;
+};
 
 const keys = <Obj extends Record<string, unknown>>(obj: Obj): (keyof Obj)[] =>
   Object.keys(obj) as (keyof Obj)[];
 
+const makeValidationMiddleware =
+  (
+    route: SharedRoute<string, any, any, any>,
+    options?: ExpressSharedRouteOptions
+  ): RequestHandler =>
+  (req, res, next) => {
+    if (options?.withBodyValidation) route.bodySchema.parse(req.body);
+    if (options?.withQueryValidation) route.bodySchema.parse(req.query);
+    next();
+  };
+
 const assignHandlersToExpressRouter = (
   expressRouter: Router,
-  route: SharedRoute<any, any, any, any>
+  route: SharedRoute<any, any, any, any>,
+  options?: ExpressSharedRouteOptions
 ) => {
+  const validationMiddleware = makeValidationMiddleware(route, options);
+
   switch (route.verb) {
     case "get":
       return (...handlers: RequestHandler[]) =>
-        expressRouter.route(route.path).get(handlers);
+        expressRouter.route(route.path).get(validationMiddleware, handlers);
     case "post":
       return (...handlers: RequestHandler[]) =>
-        expressRouter.route(route.path).post(handlers);
+        expressRouter.route(route.path).post(validationMiddleware, handlers);
     case "put":
       return (...handlers: RequestHandler[]) =>
-        expressRouter.route(route.path).put(handlers);
+        expressRouter.route(route.path).put(validationMiddleware, handlers);
     case "patch":
       return (...handlers: RequestHandler[]) =>
-        expressRouter.route(route.path).patch(handlers);
+        expressRouter.route(route.path).patch(validationMiddleware, handlers);
     case "delete":
       return (...handlers: RequestHandler[]) =>
-        expressRouter.route(route.path).delete(handlers);
+        expressRouter.route(route.path).delete(validationMiddleware, handlers);
     default:
       const shouldNotHappen: never = route.verb;
       throw new Error(route.verb + " : This HTTP verb is not handle");
@@ -38,7 +55,8 @@ export const createExpressSharedRouter = <
   R extends Record<string, SharedRoute<string, unknown, unknown, unknown>>
 >(
   sharedRoutes: R,
-  expressRouter: Router
+  expressRouter: Router,
+  options?: ExpressSharedRouteOptions
 ): {
   [K in keyof R]: (
     ...handlers: RequestHandler<
@@ -59,7 +77,8 @@ export const createExpressSharedRouter = <
     const sharedRoute = sharedRoutes[routeName];
     objectOfHandlers[routeName] = assignHandlersToExpressRouter(
       expressRouter,
-      sharedRoute
+      sharedRoute,
+      options
     );
   });
 

@@ -1,25 +1,30 @@
 import { PathParameters, replacePathWithParams } from "shared-routes";
-import type { SharedRoute, SharedRoutesOptions } from "shared-routes";
+import type { SharedRoute } from "shared-routes";
 import { z } from "zod";
 import type { AxiosInstance, AxiosRequestConfig } from "axios";
 
 const keys = <Obj extends Record<string, unknown>>(obj: Obj): (keyof Obj)[] =>
   Object.keys(obj) as (keyof Obj)[];
 
+export type AxiosSharedRoutesOptions = {
+  prefix?: string; // for usage with a proxy for exemple
+};
+
 const applyVerbAndPath = (
   axios: AxiosInstance,
   route: SharedRoute<string, any, any, any>,
-  options?: SharedRoutesOptions
+  options?: AxiosSharedRoutesOptions
 ) => {
   const routePath = options?.prefix ? options.prefix + route.path : route.path;
 
   switch (route.verb) {
     case "get":
-      return ({ params, query }: any, config: AxiosRequestConfig) =>
-        axios.get(replacePathWithParams(routePath, params), {
+      return ({ params, query }: any, config: AxiosRequestConfig) => {
+        return axios.get(replacePathWithParams(routePath, params), {
           params: query,
           ...config,
         });
+      };
     case "post":
       return ({ params, body, query }: any, config: AxiosRequestConfig) =>
         axios.post(replacePathWithParams(routePath, params), body, {
@@ -56,7 +61,7 @@ export const createAxiosSharedCaller = <
 >(
   sharedRoutes: R,
   axios: AxiosInstance,
-  options?: SharedRoutesOptions
+  options?: AxiosSharedRoutesOptions
 ): {
   [K in keyof R]: (
     params: {
