@@ -41,7 +41,21 @@ export const defineRoute = <
 
 export const defineRoutes = <T extends Record<string, unknown>>(routes: {
   [K in keyof T]: T[K];
-}) => routes;
+}) => {
+  const occurrencesByPathAndVerb: Record<string, number> = {};
+
+  for (const route of Object.values(routes)) {
+    const name = `${route.verb.toUpperCase()} ${route.path.toLowerCase()}`;
+    const occurrence = (occurrencesByPathAndVerb[name] ?? 0) + 1;
+    if (occurrence > 1)
+      throw new Error(
+        `You cannot have several routes with same verb and path, got: ${name} twice (at least)`
+      );
+    occurrencesByPathAndVerb[name] = occurrence;
+  }
+
+  return routes;
+};
 
 export type SharedRoutesOptions = {
   prefix?: string;
