@@ -66,6 +66,7 @@ Here is an exemple of usage with express, using the previously defined `myShared
 ```typescript
 import express, { Router } from "express";
 import bodyParser from "body-parser";
+import { createExpressSharedRouter } from "shared-routes-express";
 
 const fakeAuthToken = "my-token";
 
@@ -112,3 +113,68 @@ const createExempleApp = () => {
 You are able to add middlewares, just as you would with a classic express router.
 
 
+## Usage with supertest
+
+Here is an exemple of usage with supertest, using the previously defined `mySharedRoutes`, and the `createExempleApp`:
+
+```typescript
+import { createSupertestSharedCaller } from "shared-routes-supertest"
+
+const fakeAuthToken = "my-token";
+
+const app = createExempleApp();
+const supertestRequest = supertest(app);
+const supertestSharedCaller = createSupertestSharedCaller(
+  mySharedRoutes,
+  supertestRequest
+);
+
+const heyBook: Book = { title: "Hey", author: "Steeve" };
+const addBookResponse = await supertestSharedCaller.addBook({
+  body: heyBook,
+  query: undefined,
+  params: {},
+  headers: { authorization: fakeAuthToken },
+});
+expect(addBookResponse.status).toBe(200);
+
+const getAllBooksResponse = await supertestSharedCaller.getAllBooks({
+  body: undefined,
+  query: { max: 5 },
+  params: {},
+});
+expect(getAllBooksResponse.status).toBe(200);
+// getAllBooksResponse.body is of type Book[]
+expectToEqual(getAllBooksResponse.body, [heyBook]);
+```
+
+You can see the express app and the supertest exemple tested in this file :
+[createSupertestSharedCaller.test.ts](https://github.com/JeromeBu/shared-routes/blob/main/packages/shared-routes-supertest/src/createSupertestSharedCaller.test.ts)
+
+## Usage with axios
+
+```typescript
+import { createAxiosSharedCaller } from "shared-routes-axios"
+import axios from "axios";
+
+const axiosSharedCaller = createAxiosSharedCaller(mySharedRoutes, axios, {
+  prefix: "/api",
+});
+
+const getAllBooksResponse = await axiosSharedCaller.getAllBooks({
+  query: { max: 3 },
+  body: undefined,
+  params: {},
+});
+
+// getAllBooksResponse.data is of type Book[]
+
+
+const getByTitleResponse = await axiosSharedCaller.getByTitle({
+  query: undefined,
+  body: undefined,
+  params: { title: "great" },
+});
+
+// getByTitleResponse.data is of type Book | undefined
+```

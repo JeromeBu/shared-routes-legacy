@@ -16,7 +16,7 @@ describe("createAxiosSharedCaller", () => {
       getAllBooks: defineRoute({
         verb: "get",
         path: "/books",
-        querySchema: z.object({ author: z.string() }),
+        querySchema: z.object({ max: z.number() }),
         outputSchema: z.array(bookSchema),
       }),
       getByTitle: defineRoute({
@@ -37,21 +37,22 @@ describe("createAxiosSharedCaller", () => {
         query: undefined,
         params: {},
       });
-      // addBookResponse is of type void, as expected
+      // addBookResponse.data is of type void, as expected
 
       const getAllBooksResponse = await axiosSharedCaller.getAllBooks({
-        query: { author: "steve" },
+        query: { max: 3 },
         body: undefined,
         params: {},
       });
-      // getAllBooksResponse is of an array of books, as expected from outputSchema
+
+      // getAllBooksResponse.data is of an array of books, as expected from outputSchema
 
       const getByTitleResponse = await axiosSharedCaller.getByTitle({
         query: undefined,
         body: undefined,
         params: { title: "great" },
       });
-      // getAllBooksResponse is of an array of books, as expected from outputSchema
+      // getAllBooksResponse.data is of an array of books, as expected from outputSchema
     };
   });
 });

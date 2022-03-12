@@ -1,7 +1,7 @@
 import { PathParameters, replacePathWithParams } from "shared-routes";
 import type { SharedRoute } from "shared-routes";
 import { z } from "zod";
-import type { AxiosInstance, AxiosRequestConfig } from "axios";
+import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 
 const keys = <Obj extends Record<string, unknown>>(obj: Obj): (keyof Obj)[] =>
   Object.keys(obj) as (keyof Obj)[];
@@ -70,7 +70,7 @@ export const createAxiosSharedCaller = <
       query: z.infer<R[K]["querySchema"]>;
     },
     config?: AxiosRequestConfig
-  ) => Promise<z.infer<R[K]["outputSchema"]>>;
+  ) => Promise<AxiosResponse<z.infer<R[K]["outputSchema"]>>>;
 } => {
   const objectOfHandlers = {} as Record<
     keyof R,
