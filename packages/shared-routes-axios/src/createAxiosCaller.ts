@@ -1,5 +1,5 @@
 import { PathParameters, replacePathWithParams } from "shared-routes";
-import type { SharedRoute } from "shared-routes";
+import type { SharedRoute, SharedRoutesOptions } from "shared-routes";
 import { z } from "zod";
 import type { AxiosInstance, AxiosRequestConfig } from "axios";
 
@@ -8,36 +8,39 @@ const keys = <Obj extends Record<string, unknown>>(obj: Obj): (keyof Obj)[] =>
 
 const applyVerbAndPath = (
   axios: AxiosInstance,
-  route: SharedRoute<string, any, any, any>
+  route: SharedRoute<string, any, any, any>,
+  options?: SharedRoutesOptions
 ) => {
+  const routePath = options?.prefix ? options.prefix + route.path : route.path;
+
   switch (route.verb) {
     case "get":
       return ({ params, query }: any, config: AxiosRequestConfig) =>
-        axios.get(replacePathWithParams(route.path, params), {
+        axios.get(replacePathWithParams(routePath, params), {
           params: query,
           ...config,
         });
     case "post":
       return ({ params, body, query }: any, config: AxiosRequestConfig) =>
-        axios.post(replacePathWithParams(route.path, params), body, {
+        axios.post(replacePathWithParams(routePath, params), body, {
           params: query,
           ...config,
         });
     case "put":
       return ({ params, body, query }: any, config: AxiosRequestConfig) =>
-        axios.put(replacePathWithParams(route.path, params), body, {
+        axios.put(replacePathWithParams(routePath, params), body, {
           params: query,
           ...config,
         });
     case "patch":
       return ({ params, body, query }: any, config: AxiosRequestConfig) =>
-        axios.patch(replacePathWithParams(route.path, params), body, {
+        axios.patch(replacePathWithParams(routePath, params), body, {
           params: query,
           ...config,
         });
     case "delete":
       return ({ params, query }: any, config: AxiosRequestConfig) =>
-        axios.delete(replacePathWithParams(route.path, params), {
+        axios.delete(replacePathWithParams(routePath, params), {
           params: query,
           ...config,
         });
@@ -52,7 +55,8 @@ export const createAxiosSharedCaller = <
   R extends Record<string, SharedRoute<string, unknown, unknown, unknown>>
 >(
   sharedRoutes: R,
-  axios: AxiosInstance
+  axios: AxiosInstance,
+  options?: SharedRoutesOptions
 ): {
   [K in keyof R]: (
     params: {
@@ -70,7 +74,7 @@ export const createAxiosSharedCaller = <
 
   keys(sharedRoutes).forEach((routeName) => {
     const sharedRoute = sharedRoutes[routeName];
-    objectOfHandlers[routeName] = applyVerbAndPath(axios, sharedRoute);
+    objectOfHandlers[routeName] = applyVerbAndPath(axios, sharedRoute, options);
   });
 
   return objectOfHandlers as any;

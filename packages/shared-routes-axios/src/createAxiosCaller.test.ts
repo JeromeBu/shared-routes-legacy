@@ -19,24 +19,37 @@ describe("createAxiosSharedCaller", () => {
         querySchema: z.object({ author: z.string() }),
         outputSchema: z.array(bookSchema),
       }),
+      getByTitle: defineRoute({
+        verb: "get",
+        path: "/books/:title",
+      }),
     });
 
-    const axiosSharedCaller = createAxiosSharedCaller(mySharedRoutes, axios);
+    const axiosSharedCaller = createAxiosSharedCaller(mySharedRoutes, axios, {
+      prefix: "/api",
+    });
 
     // the code below will not past test as no sever is receving the calls,
     // but it is to show check that typing works fine.
     const notExecuted = async () => {
       const addBookResponse = await axiosSharedCaller.addBook({
         body: { title: "lala", author: "bob" },
-        query: {},
+        query: undefined,
         params: {},
       });
       // addBookResponse is of type void, as expected
 
       const getAllBooksResponse = await axiosSharedCaller.getAllBooks({
         query: { author: "steve" },
-        body: {},
+        body: undefined,
         params: {},
+      });
+      // getAllBooksResponse is of an array of books, as expected from outputSchema
+
+      const getByTitleResponse = await axiosSharedCaller.getByTitle({
+        query: undefined,
+        body: undefined,
+        params: { title: "great" },
       });
       // getAllBooksResponse is of an array of books, as expected from outputSchema
     };

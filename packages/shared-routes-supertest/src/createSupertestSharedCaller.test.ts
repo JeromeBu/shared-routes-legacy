@@ -76,7 +76,7 @@ describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
     const heyBook: Book = { title: "Hey", author: "Steeve" };
     const addBookResponse = await supertestSharedCaller.addBook({
       body: heyBook,
-      query: {},
+      query: undefined,
       params: {},
     });
     expect(addBookResponse.status).toBe(200);
@@ -85,12 +85,12 @@ describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
     const otherBook: Book = { title: "Other book", author: "Somebody" };
     await supertestSharedCaller.addBook({
       body: otherBook,
-      query: {},
+      query: undefined,
       params: {},
     });
 
     const getAllBooksResponse = await supertestSharedCaller.getAllBooks({
-      body: {},
+      body: undefined,
       query: { max: 5 },
       params: {},
     });
@@ -98,8 +98,8 @@ describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
     expectToEqual(getAllBooksResponse.body, [heyBook, otherBook]);
 
     const fetchedBookResponse = await supertestSharedCaller.getBookByTitle({
-      body: {},
-      query: {},
+      body: undefined,
+      query: undefined,
       params: { title: "Hey" },
     });
     expect(fetchedBookResponse.status).toBe(200);

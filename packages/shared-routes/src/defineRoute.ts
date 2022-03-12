@@ -27,8 +27,8 @@ export type SharedRoute<
 
 export const defineRoute = <
   Path extends string,
-  Body = {},
-  Query = {},
+  Body = void,
+  Query = void,
   Output = void
 >(
   route: SharedRouteWithOptional<Path, Body, Query, Output>
@@ -42,3 +42,7 @@ export const defineRoute = <
 export const defineRoutes = <T extends Record<string, unknown>>(routes: {
   [K in keyof T]: T[K];
 }) => routes;
+
+export type SharedRoutesOptions = {
+  prefix?: string;
+};
