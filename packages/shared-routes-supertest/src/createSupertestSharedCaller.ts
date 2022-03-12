@@ -12,32 +12,37 @@ const applyVerbAndPath = (
 ) => {
   switch (route.verb) {
     case "get":
-      return ({ params, query }: any) =>
+      return ({ params, query, headers }: any) =>
         supertestRequest
           .get(replacePathWithParams(route.path, params))
+          .set(headers ?? {})
           .query(query);
     case "post":
-      return ({ params, body, query }: any) =>
+      return ({ params, body, query, headers }: any) =>
         supertestRequest
           .post(replacePathWithParams(route.path, params))
           .send(body)
+          .set(headers ?? {})
           .query(query);
     case "put":
-      return ({ params, body, query }: any) =>
+      return ({ params, body, query, headers }: any) =>
         supertestRequest
           .put(replacePathWithParams(route.path, params))
           .send(body)
+          .set(headers ?? {})
           .query(query);
     case "patch":
-      return ({ params, body, query }: any) =>
+      return ({ params, body, query, headers }: any) =>
         supertestRequest
           .patch(replacePathWithParams(route.path, params))
           .send(body)
+          .set(headers ?? {})
           .query(query);
     case "delete":
-      return ({ params, query }: any) =>
+      return ({ params, query, headers }: any) =>
         supertestRequest
           .delete(replacePathWithParams(route.path, params))
+          .set(headers ?? {})
           .query(query);
     default:
       const shouldNotHappen: never = route.verb;
@@ -60,6 +65,7 @@ export const createSupertestSharedCaller = <
     params: PathParameters<R[K]["path"]>;
     body: z.infer<R[K]["bodySchema"]>;
     query: z.infer<R[K]["querySchema"]>;
+    headers?: Record<string, string>;
   }) => Promise<SupertestResponseWithOutput<z.infer<R[K]["outputSchema"]>>>;
 } => {
   const objectOfHandlers = {} as Record<keyof R, (...handlers: any[]) => any>;

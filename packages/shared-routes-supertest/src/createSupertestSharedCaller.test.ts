@@ -31,6 +31,8 @@ const mySharedRoutes = defineRoutes({
   }),
 });
 
+const fakeAuthToken = "my-token";
+
 const createExempleApp = () => {
   const app = express();
   app.use(bodyParser.json());
@@ -50,6 +52,11 @@ const createExempleApp = () => {
   });
 
   expressSharedRouter.addBook((req, res) => {
+    if (req.headers.authorization !== fakeAuthToken) {
+      res.status(401);
+      return res.json();
+    }
+
     bookDB.push(req.body);
     return res.json();
   });
@@ -65,7 +72,7 @@ const createExempleApp = () => {
 };
 
 describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
-  it("it create an express app and a supertest instance with the same sharedRoutes object", async () => {
+  it("fails to add if not authenticated", async () => {
     const app = createExempleApp();
     const supertestRequest = supertest(app);
     const supertestSharedCaller = createSupertestSharedCaller(
@@ -79,6 +86,24 @@ describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
       query: undefined,
       params: {},
     });
+    expect(addBookResponse.status).toBe(401);
+    expect(addBookResponse.body).toEqual(""); // type is void, but express sends "";
+  });
+  it("it create an express app and a supertest instance with the same sharedRoutes object", async () => {
+    const app = createExempleApp();
+    const supertestRequest = supertest(app);
+    const supertestSharedCaller = createSupertestSharedCaller(
+      mySharedRoutes,
+      supertestRequest
+    );
+
+    const heyBook: Book = { title: "Hey", author: "Steeve" };
+    const addBookResponse = await supertestSharedCaller.addBook({
+      body: heyBook,
+      query: undefined,
+      params: {},
+      headers: { authorization: fakeAuthToken },
+    });
     expect(addBookResponse.status).toBe(200);
     expect(addBookResponse.body).toEqual(""); // type is void, but express sends "";
 
@@ -87,6 +112,7 @@ describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
       body: otherBook,
       query: undefined,
       params: {},
+      headers: { authorization: fakeAuthToken },
     });
 
     const getAllBooksResponse = await supertestSharedCaller.getAllBooks({
