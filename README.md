@@ -1,77 +1,114 @@
-# Turborepo starter with pnpm
+# Shared routes
 
-This is an official starter turborepo.
+The purpose of this package is to provide a typesafe way to share routes between projects (using REST based queries).
+The usual use case would be a project having a backend, consumed by a frontend and also by some supertest http calls tests.
 
-## What's inside?
+The idea is to create the route definitions in one place and to use them everywhere. 
 
-This turborepo uses [pnpm](https://pnpm.io) as a packages manager. It includes the following packages/apps:
+For now `express` is supported as a server.
 
-### Apps and Packages
+`axios` and `supertest` are supported as callers.
 
-- `docs`: a [Next.js](https://nextjs.org) app
-- `web`: another [Next.js](https://nextjs.org) app
-- `ui`: a stub React component library shared by both `web` and `docs` applications
-- `config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `tsconfig`: `tsconfig.json`s used throughout the monorepo
+## Install
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+You can decide to use only the packages which suits your need, you will need `shared-routes` anyways.
 
-### Utilities
+```shell
+npm install shared-routes
 
-This turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-## Setup
-
-This repository is used in the `npx create-turbo@latest` command, and selected when choosing which package manager you wish to use with your monorepo (PNPM).
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-pnpm run build
+# those you need :
+npm install shared-routes-axios
+npm install shared-routes-express
+npm install shared-routes-supertest
 ```
 
-### Develop
+## Routes definitions exemple :
 
-To develop all apps and packages, run the following command:
+Shared routes are defined like the following exemple :
 
+```typescript
+import { defineRoute, defineRoutes } from "shared-routes";
+import { z } from "zod";
+
+type Book = { title: string; author: string };
+const bookSchema: z.Schema<Book> = z.object({
+  title: z.string(),
+  author: z.string(),
+});
+
+const mySharedRoutes = defineRoutes({
+  addBook: defineRoute({
+    verb: "post",
+    path: "/books",
+    bodySchema: bookSchema,
+  }),
+  getAllBooks: defineRoute({
+    verb: "get",
+    path: "/books",
+    querySchema: z.object({ max: z.number() }),
+    outputSchema: z.array(bookSchema),
+  }),
+  getBookByTitle: defineRoute({
+    verb: "get",
+    path: `/books/:title`,
+    outputSchema: z.union([bookSchema, z.undefined()]),
+  }),
+});
 ```
-cd my-turborepo
-pnpm run dev
+
+[Zod library](https://github.com/colinhacks/zod) is used for schema definitions.
+You can decide for each server / consumer if you want the actual validation to be run or if you just want to take advantage of the type. 
+
+## Usage with express
+
+Here is an exemple of usage with express, using the previously defined `mySharedRoutes`:
+
+```typescript
+import express, { Router } from "express";
+import bodyParser from "body-parser";
+
+const fakeAuthToken = "my-token";
+
+const createExempleApp = () => {
+  const app = express();
+  app.use(bodyParser.json());
+
+  const bookDB: Book[] = [];
+
+  const expressRouter = Router();
+  const expressSharedRouter = createExpressSharedRouter(
+    mySharedRoutes,
+    expressRouter,
+    { withBodyValidation: true, withQueryValidation: true }
+  );
+
+  // the routes are typed for the previously defined shared-routes
+  expressSharedRouter.getAllBooks((req, res) => {
+    return res.json(bookDB);
+  });
+
+  expressSharedRouter.addBook((req, res) => {
+    if (req.headers.authorization !== fakeAuthToken) {
+      res.status(401);
+      return res.json();
+    }
+    // req.body is of type Book
+    bookDB.push(req.body); 
+    return res.json();
+  });
+
+  expressSharedRouter.getBookByTitle((req, res) => {
+    const book = bookDB.find((b) => b.title === req.params.title);
+    // req.json only accepts type Book | undefined
+    return res.json(book);
+  });
+
+  app.use(expressRouter);
+
+  return app;
+};
 ```
 
-### Remote Caching
+You are able to add middlewares, just as you would with a classic express router.
 
-Turborepo can use a technique known as [Remote Caching (Beta)](https://turborepo.org/docs/features/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
 
-By default, Turborepo will cache locally. To enable Remote Caching (Beta) you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup), then enter the following commands:
-
-```
-cd my-turborepo
-pnpx turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your turborepo:
-
-```
-pnpx turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Pipelines](https://turborepo.org/docs/features/pipelines)
-- [Caching](https://turborepo.org/docs/features/caching)
-- [Remote Caching (Beta)](https://turborepo.org/docs/features/remote-caching)
-- [Scoped Tasks](https://turborepo.org/docs/features/scopes)
-- [Configuration Options](https://turborepo.org/docs/reference/configuration)
-- [CLI Usage](https://turborepo.org/docs/reference/command-line-reference)
