@@ -7,7 +7,6 @@
     "packages/*"
   ],
   "scripts": {
-    "release": "changeset version && changeset publish",
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
     "test": "turbo run test",
