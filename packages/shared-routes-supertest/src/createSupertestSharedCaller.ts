@@ -2,6 +2,9 @@ import { PathParameters, replacePathWithParams } from "shared-routes";
 import type { SharedRoute } from "shared-routes";
 import type { SuperTest, Test, Response } from "supertest";
 import { z } from "zod";
+import express from "express";
+
+express();
 
 const keys = <Obj extends Record<string, unknown>>(obj: Obj): (keyof Obj)[] =>
   Object.keys(obj) as (keyof Obj)[];

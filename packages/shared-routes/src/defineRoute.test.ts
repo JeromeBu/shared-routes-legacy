@@ -23,7 +23,7 @@ describe("defineRoutes", () => {
       )
     );
   });
-  it("it create routes with the expected types", () => {
+  it("create routes with the expected types", () => {
     const mySharedRoutes = defineRoutes({
       addBook: defineRoute({
         verb: "post",

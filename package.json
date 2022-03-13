@@ -7,6 +7,7 @@
     "packages/*"
   ],
   "scripts": {
+    "release": "changeset version && changeset publish",
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
     "test": "turbo run test",
@@ -17,13 +18,13 @@
     "@babel/core": "^7.17.5",
     "@babel/preset-env": "^7.16.11",
     "@babel/preset-typescript": "^7.16.7",
+    "@changesets/cli": "^2.21.1",
     "@types/jest": "^27.4.0",
     "babel-jest": "^27.5.1",
     "jest": "^27.5.1",
     "prettier": "^2.5.1",
     "turbo": "latest",
-    "typescript": "^4.5.3",
-    "@changesets/cli": "^2.21.1"
+    "typescript": "^4.6.2"
   },
   "engines": {
     "npm": ">=7.0.0",
