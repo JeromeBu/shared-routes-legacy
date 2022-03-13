@@ -1,10 +1,11 @@
 import { defineRoute, defineRoutes } from "shared-routes";
 import { createExpressSharedRouter } from "shared-routes-express";
-import supertest from "supertest";
 import { z } from "zod";
 import { createSupertestSharedCaller } from "./createSupertestSharedCaller";
-import express, { Router } from "express";
+import supertest from "supertest";
+import express from "express";
 import bodyParser from "body-parser";
+import { Router } from "express";
 
 type Book = { title: string; author: string };
 const bookSchema: z.Schema<Book> = z.object({
@@ -89,7 +90,7 @@ describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
     expect(addBookResponse.status).toBe(401);
     expect(addBookResponse.body).toEqual(""); // type is void, but express sends "";
   });
-  it("it create an express app and a supertest instance with the same sharedRoutes object", async () => {
+  it("create an express app and a supertest instance with the same sharedRoutes object", async () => {
     const app = createExempleApp();
     const supertestRequest = supertest(app);
     const supertestSharedCaller = createSupertestSharedCaller(

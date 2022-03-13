@@ -4,7 +4,7 @@ import { z } from "zod";
 import { createAxiosSharedCaller } from "./createAxiosCaller";
 
 describe("createAxiosSharedCaller", () => {
-  it("it create an a caller from axios and sharedRoutes object", async () => {
+  it("create a caller from axios and sharedRoutes object", async () => {
     const bookSchema = z.object({ title: z.string(), author: z.string() });
 
     const mySharedRoutes = defineRoutes({
