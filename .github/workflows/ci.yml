@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, dev]
+    branches: [main]
   pull_request:
     branches: [main]
 
@@ -28,7 +28,7 @@ jobs:
       - run : |
           if [ ${{ github.head_ref || github.ref_name }} = main ]
           then
-            pnpm changeset deploy
+            pnpm changeset publish
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
