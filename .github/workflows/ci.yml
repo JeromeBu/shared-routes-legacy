@@ -2,9 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    branches: [main, dev]
 
 jobs:
   build:
@@ -24,11 +22,10 @@ jobs:
       - name: Install dependencies
         run: pnpm i --frozen-lockfile
       - run: pnpm turbo run build test lint
-      - run: echo "Works"
       - run : |
           if [ ${{ github.head_ref || github.ref_name }} = main ]
           then
-            pnpm changeset publish
+            pnpm changeset publish --otp=${{ secrets.NPM_TOKEN }}
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
