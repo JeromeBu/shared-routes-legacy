@@ -1,5 +1,16 @@
 # shared-routes-axios
 
+## 0.1.0
+
+### Minor Changes
+
+- 4745923: Add the possiblity to prefix routes
+
+### Patch Changes
+
+- Updated dependencies [4745923]
+  - shared-routes@0.1.0
+
 ## 0.0.2
 
 ### Patch Changes
