@@ -4,7 +4,7 @@ import type {
   DefineRoutesOptions,
 } from "shared-routes";
 import type { IRoute, RequestHandler, Router } from "express";
-import { z } from "zod";
+import { z, ZodError } from "zod";
 
 type ExpressSharedRouteOptions = {
   withBodyValidation?: boolean;
@@ -20,9 +20,21 @@ const makeValidationMiddleware =
     options: ExpressSharedRouteOptions
   ): RequestHandler =>
   (req, res, next) => {
-    if (options.withBodyValidation) route.bodySchema.parse(req.body);
-    if (options.withQueryValidation) route.bodySchema.parse(req.query);
-    next();
+    try {
+      if (options.withBodyValidation) route.bodySchema.parse(req.body);
+      if (options.withQueryValidation) {
+        req.query = route.querySchema.parse(req.query);
+      }
+      next();
+    } catch (e) {
+      const error = e as ZodError;
+      res.status(400);
+      res.json(
+        error.issues.map(
+          ({ message, path }) => `${path.join(".")} : ${message}`
+        )
+      );
+    }
   };
 
 const assignHandlersToExpressRouter = (

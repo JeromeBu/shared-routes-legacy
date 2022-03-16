@@ -7,6 +7,11 @@ import express from "express";
 import bodyParser from "body-parser";
 import { Router } from "express";
 
+const zNumberFromString = z.preprocess((v: any) => {
+  const n = parseInt(v);
+  return isNaN(n) ? v : n;
+}, z.number());
+
 type Book = { title: string; author: string };
 const bookSchema: z.Schema<Book> = z.object({
   title: z.string(),
@@ -22,7 +27,7 @@ const mySharedRoutes = definePrefixedRoute("/books", {
   getAllBooks: defineRoute({
     verb: "get",
     path: "/",
-    querySchema: z.object({ max: z.number() }),
+    querySchema: z.object({ max: zNumberFromString }),
     outputSchema: z.array(bookSchema),
   }),
   getBookByTitle: defineRoute({
@@ -41,8 +46,11 @@ const createExempleApp = () => {
   const bookDB: Book[] = [];
 
   const expressRouter = Router();
+
   const { sharedRouter: expressSharedRouter, pathPrefix } =
-    createExpressSharedRouter(mySharedRoutes, expressRouter);
+    createExpressSharedRouter(mySharedRoutes, expressRouter, {
+      withQueryValidation: true,
+    });
 
   expressSharedRouter.getAllBooks((req, res) => {
     console.log("max", req.query.max);
@@ -66,7 +74,6 @@ const createExempleApp = () => {
   });
 
   app.use(pathPrefix, expressRouter);
-
   return app;
 };
 
@@ -85,9 +92,29 @@ describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
       query: undefined,
       params: {},
     });
-    expect(addBookResponse.status).toBe(401);
     expect(addBookResponse.body).toEqual(""); // type is void, but express sends "";
+    expect(addBookResponse.status).toBe(401);
   });
+
+  it("fails explicitly when the schema is not respected", async () => {
+    const app = createExempleApp();
+    const supertestRequest = supertest(app);
+    const supertestSharedCaller = createSupertestSharedCaller(
+      mySharedRoutes,
+      supertestRequest
+    );
+
+    const getAllBooksResponse = await supertestSharedCaller.getAllBooks({
+      body: undefined,
+      query: { max: "yolo" as any },
+      params: {},
+    });
+    expect(getAllBooksResponse.body).toEqual([
+      "max : Expected number, received string",
+    ]);
+    expect(getAllBooksResponse.status).toBe(400);
+  });
+
   it("create an express app and a supertest instance with the same sharedRoutes object", async () => {
     const app = createExempleApp();
     const supertestRequest = supertest(app);
@@ -103,8 +130,9 @@ describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
       params: {},
       headers: { authorization: fakeAuthToken },
     });
-    expect(addBookResponse.status).toBe(200);
+
     expect(addBookResponse.body).toEqual(""); // type is void, but express sends "";
+    expect(addBookResponse.status).toBe(200);
 
     const otherBook: Book = { title: "Other book", author: "Somebody" };
     await supertestSharedCaller.addBook({
@@ -119,16 +147,16 @@ describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
       query: { max: 5 },
       params: {},
     });
-    expect(getAllBooksResponse.status).toBe(200);
     expectToEqual(getAllBooksResponse.body, [heyBook, otherBook]);
+    expect(getAllBooksResponse.status).toBe(200);
 
     const fetchedBookResponse = await supertestSharedCaller.getBookByTitle({
       body: undefined,
       query: undefined,
       params: { title: "Hey" },
     });
-    expect(fetchedBookResponse.status).toBe(200);
     expectToEqual(fetchedBookResponse.body, heyBook);
+    expect(fetchedBookResponse.status).toBe(200);
   });
 });
 
