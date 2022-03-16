@@ -39,9 +39,16 @@ export const defineRoute = <
   ...route,
 });
 
-export const defineRoutes = <T extends Record<string, unknown>>(routes: {
-  [K in keyof T]: T[K];
-}) => {
+export type DefineRoutesOptions = {
+  pathPrefix: string;
+};
+
+export const defineRoutes = <T extends Record<string, unknown>>(
+  routes: {
+    [K in keyof T]: T[K];
+  },
+  routeOptions: DefineRoutesOptions = { pathPrefix: "/" }
+) => {
   const occurrencesByPathAndVerb: Record<string, number> = {};
 
   for (const route of Object.values(routes)) {
@@ -54,5 +61,10 @@ export const defineRoutes = <T extends Record<string, unknown>>(routes: {
     occurrencesByPathAndVerb[name] = occurrence;
   }
 
-  return routes;
+  return { routes, routeOptions };
 };
+
+export const definePrefixedRoute = <T extends Record<string, unknown>>(
+  pathPrefix: string,
+  routeDefinitions: { [K in keyof T]: T[K] }
+) => defineRoutes(routeDefinitions, { pathPrefix });

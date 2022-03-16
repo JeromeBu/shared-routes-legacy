@@ -1,4 +1,8 @@
-import type { SharedRoute, PathParameters } from "shared-routes";
+import type {
+  SharedRoute,
+  PathParameters,
+  DefineRoutesOptions,
+} from "shared-routes";
 import type { IRoute, RequestHandler, Router } from "express";
 import { z } from "zod";
 
@@ -13,18 +17,18 @@ const keys = <Obj extends Record<string, unknown>>(obj: Obj): (keyof Obj)[] =>
 const makeValidationMiddleware =
   (
     route: SharedRoute<string, any, any, any>,
-    options?: ExpressSharedRouteOptions
+    options: ExpressSharedRouteOptions
   ): RequestHandler =>
   (req, res, next) => {
-    if (options?.withBodyValidation) route.bodySchema.parse(req.body);
-    if (options?.withQueryValidation) route.bodySchema.parse(req.query);
+    if (options.withBodyValidation) route.bodySchema.parse(req.body);
+    if (options.withQueryValidation) route.bodySchema.parse(req.query);
     next();
   };
 
 const assignHandlersToExpressRouter = (
   expressRouter: Router,
   route: SharedRoute<any, any, any, any>,
-  options?: ExpressSharedRouteOptions
+  options: ExpressSharedRouteOptions & DefineRoutesOptions
 ) => {
   const validationMiddleware = makeValidationMiddleware(route, options);
 
@@ -54,33 +58,44 @@ const assignHandlersToExpressRouter = (
 export const createExpressSharedRouter = <
   R extends Record<string, SharedRoute<string, unknown, unknown, unknown>>
 >(
-  sharedRoutes: R,
+  { routes, routeOptions }: { routes: R; routeOptions: DefineRoutesOptions },
   expressRouter: Router,
   options?: ExpressSharedRouteOptions
 ): {
-  [K in keyof R]: (
-    ...handlers: RequestHandler<
-      PathParameters<R[K]["path"]>,
-      z.infer<R[K]["outputSchema"]>,
-      z.infer<R[K]["bodySchema"]>,
-      z.infer<R[K]["querySchema"]>,
-      any
-    >[]
-  ) => IRoute;
+  sharedRouter: {
+    [K in keyof R]: (
+      ...handlers: RequestHandler<
+        PathParameters<R[K]["path"]>,
+        z.infer<R[K]["outputSchema"]>,
+        z.infer<R[K]["bodySchema"]>,
+        z.infer<R[K]["querySchema"]>,
+        any
+      >[]
+    ) => IRoute;
+  };
+  pathPrefix: string;
 } => {
   const objectOfHandlers = {} as Record<
     keyof R,
     (...handlers: RequestHandler[]) => IRoute
   >;
 
-  keys(sharedRoutes).forEach((routeName) => {
-    const sharedRoute = sharedRoutes[routeName];
+  keys(routes).forEach((routeName) => {
+    const sharedRoute = routes[routeName];
     objectOfHandlers[routeName] = assignHandlersToExpressRouter(
       expressRouter,
       sharedRoute,
-      options
+      {
+        withQueryValidation: false,
+        withBodyValidation: false,
+        ...options,
+        ...routeOptions,
+      }
     );
   });
 
-  return objectOfHandlers as any;
+  return {
+    sharedRouter: objectOfHandlers as any,
+    pathPrefix: routeOptions.pathPrefix,
+  };
 };

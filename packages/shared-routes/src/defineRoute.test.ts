@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { defineRoutes, defineRoute } from "./defineRoute";
+import { defineRoutes, defineRoute, definePrefixedRoute } from "./defineRoute";
 
 describe("defineRoutes", () => {
   it("does not allow 2 routes with same verb and path", () => {
@@ -24,7 +24,7 @@ describe("defineRoutes", () => {
     );
   });
   it("create routes with the expected types", () => {
-    const mySharedRoutes = defineRoutes({
+    const { routes } = defineRoutes({
       addBook: defineRoute({
         verb: "post",
         path: "/books",
@@ -38,8 +38,22 @@ describe("defineRoutes", () => {
       }),
     });
 
-    expect(() =>
-      mySharedRoutes.getAllBooks.bodySchema.parse({ yo: "lala" })
-    ).toThrow();
+    expect(() => routes.getAllBooks.bodySchema.parse({ yo: "lala" })).toThrow();
+  });
+
+  it("allows to give a route path prefix common to all defined shared routes", () => {
+    const { routes, routeOptions } = definePrefixedRoute("/books", {
+      addBook: defineRoute({
+        verb: "post",
+        path: "/",
+        bodySchema: z.object({ title: z.string() }),
+      }),
+      getAllBooks: defineRoute({
+        verb: "get",
+        path: "/",
+        querySchema: z.object({ lala: z.string() }),
+        outputSchema: z.array(z.object({ id: z.string(), name: z.string() })),
+      }),
+    });
   });
 });
