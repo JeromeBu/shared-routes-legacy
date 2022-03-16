@@ -1,8 +1,10 @@
 {
   "name": "shared-routes-express",
   "type": "module",
-  "publishConfig": { "access": "public" },
-  "version": "0.1.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "version": "0.1.1",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {

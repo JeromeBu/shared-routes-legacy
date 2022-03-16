@@ -1,5 +1,11 @@
 # shared-routes-express
 
+## 0.1.1
+
+### Patch Changes
+
+- ed996bc: Parse query params to get correct types instead of string only
+
 ## 0.1.0
 
 ### Minor Changes
