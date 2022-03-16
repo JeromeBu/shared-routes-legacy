@@ -8,6 +8,7 @@
   "scripts": {
     "test": "jest",
     "build": "rm -rf ./dist && tsc -p tsconfig.build.json",
+    "watch": "tsc -p tsconfig.build.json --watch",
     "lint": "eslint src --fix"
   },
   "devDependencies": {
