@@ -26,7 +26,7 @@ describe("createAxiosSharedCaller", () => {
     });
 
     const axiosSharedCaller = createAxiosSharedCaller(mySharedRoutes, axios, {
-      prefix: "/api",
+      proxyPrefix: "/api",
     });
 
     // the code below will not past test as no sever is receving the calls,

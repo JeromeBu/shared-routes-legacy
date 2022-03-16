@@ -1,4 +1,4 @@
-import { defineRoute, defineRoutes } from "shared-routes";
+import { defineRoute, definePrefixedRoute } from "shared-routes";
 import { createExpressSharedRouter } from "shared-routes-express";
 import { z } from "zod";
 import { createSupertestSharedCaller } from "./createSupertestSharedCaller";
@@ -13,15 +13,15 @@ const bookSchema: z.Schema<Book> = z.object({
   author: z.string(),
 });
 
-const mySharedRoutes = defineRoutes({
+const mySharedRoutes = definePrefixedRoute("/books", {
   addBook: defineRoute({
     verb: "post",
-    path: "/books",
+    path: "/",
     bodySchema: bookSchema,
   }),
   getAllBooks: defineRoute({
     verb: "get",
-    path: "/books",
+    path: "/",
     querySchema: z.object({ max: z.number() }),
     outputSchema: z.array(bookSchema),
   }),
@@ -41,10 +41,8 @@ const createExempleApp = () => {
   const bookDB: Book[] = [];
 
   const expressRouter = Router();
-  const expressSharedRouter = createExpressSharedRouter(
-    mySharedRoutes,
-    expressRouter
-  );
+  const { sharedRouter: expressSharedRouter, pathPrefix } =
+    createExpressSharedRouter(mySharedRoutes, expressRouter);
 
   expressSharedRouter.getAllBooks((req, res) => {
     console.log("max", req.query.max);
@@ -67,7 +65,7 @@ const createExempleApp = () => {
     return res.json(book);
   });
 
-  app.use(expressRouter);
+  app.use(pathPrefix, expressRouter);
 
   return app;
 };

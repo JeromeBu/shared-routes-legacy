@@ -1,5 +1,5 @@
 import { PathParameters, replacePathWithParams } from "shared-routes";
-import type { SharedRoute } from "shared-routes";
+import type { SharedRoute, DefineRoutesOptions } from "shared-routes";
 import { z } from "zod";
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 
@@ -7,15 +7,15 @@ const keys = <Obj extends Record<string, unknown>>(obj: Obj): (keyof Obj)[] =>
   Object.keys(obj) as (keyof Obj)[];
 
 export type AxiosSharedRoutesOptions = {
-  prefix?: string; // for usage with a proxy for exemple
+  proxyPrefix: string; // for usage with a proxy for exemple
 };
 
 const applyVerbAndPath = (
   axios: AxiosInstance,
   route: SharedRoute<string, any, any, any>,
-  options?: AxiosSharedRoutesOptions
+  options: AxiosSharedRoutesOptions & DefineRoutesOptions
 ) => {
-  const routePath = options?.prefix ? options.prefix + route.path : route.path;
+  const routePath = options.pathPrefix + options.proxyPrefix + route.path;
 
   switch (route.verb) {
     case "get":
@@ -59,7 +59,7 @@ const applyVerbAndPath = (
 export const createAxiosSharedCaller = <
   R extends Record<string, SharedRoute<string, unknown, unknown, unknown>>
 >(
-  sharedRoutes: R,
+  { routes, routeOptions }: { routes: R; routeOptions: DefineRoutesOptions },
   axios: AxiosInstance,
   options?: AxiosSharedRoutesOptions
 ): {
@@ -77,9 +77,12 @@ export const createAxiosSharedCaller = <
     (params: { body: any; query: any }, config?: any) => Promise<any>
   >;
 
-  keys(sharedRoutes).forEach((routeName) => {
-    const sharedRoute = sharedRoutes[routeName];
-    objectOfHandlers[routeName] = applyVerbAndPath(axios, sharedRoute, options);
+  keys(routes).forEach((routeName) => {
+    const sharedRoute = routes[routeName];
+    objectOfHandlers[routeName] = applyVerbAndPath(axios, sharedRoute, {
+      proxyPrefix: options?.proxyPrefix ?? "",
+      ...routeOptions,
+    });
   });
 
   return objectOfHandlers as any;

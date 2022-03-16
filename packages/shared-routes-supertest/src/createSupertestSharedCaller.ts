@@ -1,5 +1,5 @@
 import { PathParameters, replacePathWithParams } from "shared-routes";
-import type { SharedRoute } from "shared-routes";
+import type { SharedRoute, DefineRoutesOptions } from "shared-routes";
 import type { SuperTest, Test, Response } from "supertest";
 import { z } from "zod";
 import express from "express";
@@ -11,40 +11,43 @@ const keys = <Obj extends Record<string, unknown>>(obj: Obj): (keyof Obj)[] =>
 
 const applyVerbAndPath = (
   supertestRequest: SuperTest<Test>,
-  route: SharedRoute<string, any, any, any>
+  route: SharedRoute<string, any, any, any>,
+  options: DefineRoutesOptions
 ) => {
+  const routePath = options.pathPrefix + route.path;
+
   switch (route.verb) {
     case "get":
       return ({ params, query, headers }: any) =>
         supertestRequest
-          .get(replacePathWithParams(route.path, params))
+          .get(replacePathWithParams(routePath, params))
           .set(headers ?? {})
           .query(query);
     case "post":
       return ({ params, body, query, headers }: any) =>
         supertestRequest
-          .post(replacePathWithParams(route.path, params))
+          .post(replacePathWithParams(routePath, params))
           .send(body)
           .set(headers ?? {})
           .query(query);
     case "put":
       return ({ params, body, query, headers }: any) =>
         supertestRequest
-          .put(replacePathWithParams(route.path, params))
+          .put(replacePathWithParams(routePath, params))
           .send(body)
           .set(headers ?? {})
           .query(query);
     case "patch":
       return ({ params, body, query, headers }: any) =>
         supertestRequest
-          .patch(replacePathWithParams(route.path, params))
+          .patch(replacePathWithParams(routePath, params))
           .send(body)
           .set(headers ?? {})
           .query(query);
     case "delete":
       return ({ params, query, headers }: any) =>
         supertestRequest
-          .delete(replacePathWithParams(route.path, params))
+          .delete(replacePathWithParams(routePath, params))
           .set(headers ?? {})
           .query(query);
     default:
@@ -61,7 +64,7 @@ type SupertestResponseWithOutput<Output> = Omit<Response, "body"> & {
 export const createSupertestSharedCaller = <
   R extends Record<string, SharedRoute<string, unknown, unknown, unknown>>
 >(
-  sharedRoutes: R,
+  { routes, routeOptions }: { routes: R; routeOptions: DefineRoutesOptions },
   supertestRequest: SuperTest<Test>
 ): {
   [K in keyof R]: (params: {
@@ -73,11 +76,12 @@ export const createSupertestSharedCaller = <
 } => {
   const objectOfHandlers = {} as Record<keyof R, (...handlers: any[]) => any>;
 
-  keys(sharedRoutes).forEach((routeName) => {
-    const sharedRoute = sharedRoutes[routeName];
+  keys(routes).forEach((routeName) => {
+    const sharedRoute = routes[routeName];
     objectOfHandlers[routeName] = applyVerbAndPath(
       supertestRequest,
-      sharedRoute
+      sharedRoute,
+      { pathPrefix: routeOptions.pathPrefix }
     );
   });
 
