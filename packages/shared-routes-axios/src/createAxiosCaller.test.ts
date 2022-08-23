@@ -34,22 +34,22 @@ describe("createAxiosSharedCaller", () => {
     const notExecuted = async () => {
       const addBookResponse = await axiosSharedCaller.addBook({
         body: { title: "lala", author: "bob" },
-        query: undefined,
+        query: null,
         params: {},
       });
       // addBookResponse.data is of type void, as expected
 
       const getAllBooksResponse = await axiosSharedCaller.getAllBooks({
         query: { max: 3 },
-        body: undefined,
+        body: null,
         params: {},
       });
 
       // getAllBooksResponse.data is of an array of books, as expected from outputSchema
 
       const getByTitleResponse = await axiosSharedCaller.getByTitle({
-        query: undefined,
-        body: undefined,
+        query: null,
+        body: null,
         params: { title: "great" },
       });
       // getAllBooksResponse.data is of an array of books, as expected from outputSchema

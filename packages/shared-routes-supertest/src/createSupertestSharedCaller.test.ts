@@ -89,7 +89,7 @@ describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
     const heyBook: Book = { title: "Hey", author: "Steeve" };
     const addBookResponse = await supertestSharedCaller.addBook({
       body: heyBook,
-      query: undefined,
+      query: null,
       params: {},
     });
     expect(addBookResponse.body).toEqual(""); // type is void, but express sends "";
@@ -110,7 +110,7 @@ describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
     );
 
     const getAllBooksResponse = await supertestSharedCaller.getAllBooks({
-      body: undefined,
+      body: null,
       query: { max: "yolo" as any },
       params: {},
     });
@@ -131,7 +131,7 @@ describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
     const heyBook: Book = { title: "Hey", author: "Steeve" };
     const addBookResponse = await supertestSharedCaller.addBook({
       body: heyBook,
-      query: undefined,
+      query: null,
       params: {},
       headers: { authorization: fakeAuthToken },
     });
@@ -142,13 +142,13 @@ describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
     const otherBook: Book = { title: "Other book", author: "Somebody" };
     await supertestSharedCaller.addBook({
       body: otherBook,
-      query: undefined,
+      query: null,
       params: {},
       headers: { authorization: fakeAuthToken },
     });
 
     const getAllBooksResponse = await supertestSharedCaller.getAllBooks({
-      body: undefined,
+      body: null,
       query: { max: 5 },
       params: {},
     });
@@ -156,8 +156,8 @@ describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
     expect(getAllBooksResponse.status).toBe(200);
 
     const fetchedBookResponse = await supertestSharedCaller.getBookByTitle({
-      body: undefined,
-      query: undefined,
+      body: null,
+      query: null,
       params: { title: "Hey" },
     });
     expectToEqual(fetchedBookResponse.body, heyBook);
