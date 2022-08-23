@@ -10,7 +10,8 @@
   "scripts": {
     "build": "rm -rf ./dist && tsc -p tsconfig.build.json",
     "watch": "tsc -p tsconfig.build.json --watch",
-    "lint": "eslint src --fix"
+    "lint": "eslint src --fix",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "config": "workspace:*",

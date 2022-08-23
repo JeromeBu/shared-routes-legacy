@@ -52,7 +52,9 @@ export const defineRoutes = <T extends Record<string, unknown>>(
   const occurrencesByPathAndVerb: Record<string, number> = {};
 
   for (const route of Object.values(routes)) {
-    const name = `${route.verb.toUpperCase()} ${route.path.toLowerCase()}`;
+    const name = `${route.verb.toUpperCase()} ${
+      routeOptions.pathPrefix === "/" ? "" : routeOptions.pathPrefix
+    }${route.path.toLowerCase()}`;
     const occurrence = (occurrencesByPathAndVerb[name] ?? 0) + 1;
     if (occurrence > 1)
       throw new Error(

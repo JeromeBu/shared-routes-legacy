@@ -12,7 +12,9 @@
     "dev": "turbo run dev --parallel",
     "test": "turbo run test",
     "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "typecheck": "turbo run typecheck",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "fullcheck": "pnpm format && turbo run typecheck lint test"
   },
   "devDependencies": {
     "@babel/core": "^7.17.5",

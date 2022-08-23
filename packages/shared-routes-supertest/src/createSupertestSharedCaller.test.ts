@@ -32,7 +32,7 @@ const mySharedRoutes = definePrefixedRoute("/books", {
   }),
   getBookByTitle: defineRoute({
     verb: "get",
-    path: `/books/:title`,
+    path: "/:title",
     outputSchema: z.union([bookSchema, z.undefined()]),
   }),
 });
