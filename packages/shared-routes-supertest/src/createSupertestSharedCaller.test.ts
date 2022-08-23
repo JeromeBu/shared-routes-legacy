@@ -94,6 +94,11 @@ describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
     });
     expect(addBookResponse.body).toEqual(""); // type is void, but express sends "";
     expect(addBookResponse.status).toBe(401);
+    expect(mySharedRoutes.listRoutes()).toEqual([
+      "POST /books/",
+      "GET /books/",
+      "GET /books/:title",
+    ]);
   });
 
   it("fails explicitly when the schema is not respected", async () => {

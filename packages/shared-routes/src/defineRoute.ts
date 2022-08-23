@@ -63,7 +63,9 @@ export const defineRoutes = <T extends Record<string, unknown>>(
     occurrencesByPathAndVerb[name] = occurrence;
   }
 
-  return { routes, routeOptions };
+  const listRoutes = () => Object.keys(occurrencesByPathAndVerb);
+
+  return { routes, routeOptions, listRoutes };
 };
 
 export const definePrefixedRoute = <T extends Record<string, unknown>>(

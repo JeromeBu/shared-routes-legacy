@@ -24,8 +24,8 @@ describe("defineRoutes", () => {
     );
   });
 
-  it("create routes with the expected types", () => {
-    const { routes } = defineRoutes({
+  it("create routes with the expected types and shows list of routes", () => {
+    const { routes, listRoutes } = defineRoutes({
       addBook: defineRoute({
         verb: "post",
         path: "/books",
@@ -40,10 +40,11 @@ describe("defineRoutes", () => {
     });
 
     expect(() => routes.getAllBooks.bodySchema.parse({ yo: "lala" })).toThrow();
+    expect(listRoutes()).toEqual(["POST /books", "GET /books"]);
   });
 
   it("allows to give a route path prefix common to all defined shared routes", () => {
-    const { routes, routeOptions } = definePrefixedRoute("/books", {
+    const { routes, routeOptions, listRoutes } = definePrefixedRoute("/books", {
       addBook: defineRoute({
         verb: "post",
         path: "/yolo",
@@ -59,5 +60,6 @@ describe("defineRoutes", () => {
 
     expect(routeOptions.pathPrefix).toBe("/books");
     expect(routes.addBook.path).toBe("/yolo");
+    expect(listRoutes()).toEqual(["POST /books/yolo", "GET /books/"]);
   });
 });
