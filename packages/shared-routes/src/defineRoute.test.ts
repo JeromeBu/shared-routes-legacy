@@ -23,6 +23,7 @@ describe("defineRoutes", () => {
       )
     );
   });
+
   it("create routes with the expected types", () => {
     const { routes } = defineRoutes({
       addBook: defineRoute({
@@ -45,7 +46,7 @@ describe("defineRoutes", () => {
     const { routes, routeOptions } = definePrefixedRoute("/books", {
       addBook: defineRoute({
         verb: "post",
-        path: "/",
+        path: "/yolo",
         bodySchema: z.object({ title: z.string() }),
       }),
       getAllBooks: defineRoute({
@@ -55,5 +56,8 @@ describe("defineRoutes", () => {
         outputSchema: z.array(z.object({ id: z.string(), name: z.string() })),
       }),
     });
+
+    expect(routeOptions.pathPrefix).toBe("/books");
+    expect(routes.addBook.path).toBe("/yolo");
   });
 });

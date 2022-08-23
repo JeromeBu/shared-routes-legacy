@@ -3,7 +3,7 @@
 The purpose of this package is to provide a typesafe way to share routes between projects (using REST based queries).
 The usual use case would be a project having a backend, consumed by a frontend and also by some supertest http calls tests.
 
-The idea is to create the route definitions in one place and to use them everywhere. 
+The idea is to create the route definitions in one place and to use them everywhere.
 
 For now `express` is supported as a server.
 
@@ -57,7 +57,7 @@ const mySharedRoutes = defineRoutes({
 ```
 
 [Zod library](https://github.com/colinhacks/zod) is used for schema definitions.
-You can decide for each server / consumer if you want the actual validation to be run or if you just want to take advantage of the type. 
+You can decide for each server / consumer if you want the actual validation to be run or if you just want to take advantage of the type.
 
 ## Usage with express
 
@@ -94,7 +94,7 @@ const createExempleApp = () => {
       return res.json();
     }
     // req.body is of type Book
-    bookDB.push(req.body); 
+    bookDB.push(req.body);
     return res.json();
   });
 
@@ -112,13 +112,12 @@ const createExempleApp = () => {
 
 You are able to add middlewares, just as you would with a classic express router.
 
-
 ## Usage with supertest
 
 Here is an exemple of usage with supertest, using the previously defined `mySharedRoutes`, and the `createExempleApp`:
 
 ```typescript
-import { createSupertestSharedCaller } from "shared-routes-supertest"
+import { createSupertestSharedCaller } from "shared-routes-supertest";
 
 const fakeAuthToken = "my-token";
 
@@ -154,7 +153,7 @@ You can see the express app and the supertest exemple tested in this file :
 ## Usage with axios
 
 ```typescript
-import { createAxiosSharedCaller } from "shared-routes-axios"
+import { createAxiosSharedCaller } from "shared-routes-axios";
 import axios from "axios";
 
 const axiosSharedCaller = createAxiosSharedCaller(mySharedRoutes, axios, {
@@ -168,7 +167,6 @@ const getAllBooksResponse = await axiosSharedCaller.getAllBooks({
 });
 
 // getAllBooksResponse.data is of type Book[]
-
 
 const getByTitleResponse = await axiosSharedCaller.getByTitle({
   query: undefined,
