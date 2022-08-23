@@ -27,9 +27,9 @@ export type SharedRoute<
 
 export const defineRoute = <
   Path extends string,
-  Body = null,
-  Query = null,
-  Output = null
+  Body = void,
+  Query = void,
+  Output = void
 >(
   route: SharedRouteWithOptional<Path, Body, Query, Output>
 ): SharedRoute<Path, Body, Query, Output> => ({

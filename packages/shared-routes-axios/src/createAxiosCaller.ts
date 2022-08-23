@@ -56,6 +56,9 @@ const applyVerbAndPath = (
   }
 };
 
+type AnyObj = Record<string, unknown>;
+type EmptyObj = Record<string, never>;
+
 export const createAxiosSharedCaller = <
   R extends Record<string, SharedRoute<string, unknown, unknown, unknown>>
 >(
@@ -64,11 +67,10 @@ export const createAxiosSharedCaller = <
   options?: AxiosSharedRoutesOptions
 ): {
   [K in keyof R]: (
-    params: {
-      params: PathParameters<R[K]["path"]>;
-      body: z.infer<R[K]["bodySchema"]>;
-      query: z.infer<R[K]["querySchema"]>;
-    },
+    // prettier-ignore
+    params: (PathParameters<R[K]["path"]> extends EmptyObj ? AnyObj : {params: PathParameters<R[K]["path"]>})
+      & (z.infer<R[K]["bodySchema"]> extends void ? AnyObj : { body: z.infer<R[K]["bodySchema"]> })
+      & (z.infer<R[K]["querySchema"]> extends void ? AnyObj : { query: z.infer<R[K]["querySchema"]> }),
     config?: AxiosRequestConfig
   ) => Promise<AxiosResponse<z.infer<R[K]["outputSchema"]>>>;
 } => {

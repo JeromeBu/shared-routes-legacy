@@ -29,30 +29,29 @@ describe("createAxiosSharedCaller", () => {
       proxyPrefix: "/api",
     });
 
+    expect(mySharedRoutes.listRoutes()).toEqual([
+      "POST /books",
+      "GET /books",
+      "GET /books/:title",
+    ]);
+
     // the code below will not past test as no server is receiving the calls,
     // but it is to show check that typing works fine.
     const notExecuted = async () => {
       const addBookResponse = await axiosSharedCaller.addBook({
         body: { title: "lala", author: "bob" },
-        query: null,
-        params: {},
       });
-      // addBookResponse.data is of type void, as expected
+      addBookResponse.data; // type is void, as expected
 
       const getAllBooksResponse = await axiosSharedCaller.getAllBooks({
         query: { max: 3 },
-        body: null,
-        params: {},
       });
-
-      // getAllBooksResponse.data is of an array of books, as expected from outputSchema
+      getAllBooksResponse.data; // type is Book[], as expected
 
       const getByTitleResponse = await axiosSharedCaller.getByTitle({
-        query: null,
-        body: null,
         params: { title: "great" },
       });
-      // getAllBooksResponse.data is of an array of books, as expected from outputSchema
+      getByTitleResponse.data; // type is Book[], as expected
     };
   });
 });
