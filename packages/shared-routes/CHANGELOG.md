@@ -1,5 +1,11 @@
 # shared-routes
 
+## 0.2.0
+
+### Minor Changes
+
+- aa0d8b9: Fix packages and add listRoutes function
+
 ## 0.1.0
 
 ### Minor Changes

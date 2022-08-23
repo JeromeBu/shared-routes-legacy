@@ -1,5 +1,16 @@
 # shared-routes-express
 
+## 0.2.0
+
+### Minor Changes
+
+- aa0d8b9: Fix packages and add listRoutes function
+
+### Patch Changes
+
+- Updated dependencies [aa0d8b9]
+  - shared-routes@0.2.0
+
 ## 0.1.1
 
 ### Patch Changes
