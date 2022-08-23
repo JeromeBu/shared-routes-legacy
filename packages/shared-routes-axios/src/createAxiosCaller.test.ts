@@ -29,7 +29,7 @@ describe("createAxiosSharedCaller", () => {
       proxyPrefix: "/api",
     });
 
-    // the code below will not past test as no sever is receving the calls,
+    // the code below will not past test as no server is receiving the calls,
     // but it is to show check that typing works fine.
     const notExecuted = async () => {
       const addBookResponse = await axiosSharedCaller.addBook({
