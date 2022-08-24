@@ -1,5 +1,16 @@
 # shared-routes-axios
 
+## 0.3.0
+
+### Minor Changes
+
+- fa83d1b: make params, query and body not mandatory when they are void (big improvement of Dev Exp)
+
+### Patch Changes
+
+- Updated dependencies [fa83d1b]
+  - shared-routes@0.3.0
+
 ## 0.2.0
 
 ### Minor Changes
