@@ -73,7 +73,7 @@ export const createSupertestSharedCaller = <
   [K in keyof R]: (
     // prettier-ignore
     params: ({ headers?: Record<string, string> })
-      & (PathParameters<R[K]["path"]> extends EmptyObj ? AnyObj : {params: PathParameters<R[K]["path"]>})
+      & (PathParameters<R[K]["path"]> extends EmptyObj ? AnyObj : { params: PathParameters<R[K]["path"]> })
       & (z.infer<R[K]["bodySchema"]> extends void ? AnyObj : { body: z.infer<R[K]["bodySchema"]> })
       & (z.infer<R[K]["querySchema"]> extends void ? AnyObj : { query: z.infer<R[K]["querySchema"]> })
   ) => Promise<SupertestResponseWithOutput<z.infer<R[K]["outputSchema"]>>>;
