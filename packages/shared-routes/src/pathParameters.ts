@@ -37,6 +37,6 @@ export const replacePathWithParams = <Path extends string>(
   const paramNames = keys(params);
   if (paramNames.length === 0) return path;
   return paramNames.reduce((acc, paramName) => {
-    return acc.replace(`:${paramName}`, params[paramName]);
+    return acc.replace(`:${paramName.toString()}`, params[paramName]);
   }, path as any);
 };
