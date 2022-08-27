@@ -9,18 +9,16 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "test": "jest",
-    "build": "rm -rf ./dist && tsc -p tsconfig.build.json",
-    "watch": "tsc -p tsconfig.build.json --watch",
+    "build": "rm -rf ./dist && pnpm -w tsc-cmd -p ./packages/shared-routes/tsconfig.build.json",
+    "watch": "pnpm -w tsc-cmd -p ./packages/shared-routes/tsconfig.build.json --watch",
     "lint": "eslint src --fix",
-    "format:write": "pnpm -w format-cmd --write ./packages/shared-routes/src/",
-    "format:check": "pnpm -w format-cmd --check ./packages/shared-routes/src/",
+    "format": "pnpm -w format-cmd --write ./packages/shared-routes/src/",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "config": "workspace:*",
     "eslint": "^8.11.0",
-    "tsconfig": "workspace:*",
-    "typescript": "^4.5.3"
+    "tsconfig": "workspace:*"
   },
   "dependencies": {
     "zod": "^3.11.6"

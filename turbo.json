@@ -7,8 +7,7 @@
     },
     "test": { "dependsOn": ["build"] },
     "lint": { "outputs": [] },
-    "format:write": {},
-    "format:check": {},
+    "format": {},
     "watch": { "outputs": ["dist/**"] },
     "dev": {
       "cache": false

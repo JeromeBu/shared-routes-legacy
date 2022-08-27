@@ -10,8 +10,7 @@
   "scripts": {
     "test": "jest",
     "build": "rm -rf ./dist && tsc -p tsconfig.build.json",
-    "format:write": "pnpm -w format-cmd --write ./packages/shared-routes-supertest/src/",
-    "format:check": "pnpm -w format-cmd --check ./packages/shared-routes-supertest/src/",
+    "format": "pnpm -w format-cmd --write ./packages/shared-routes-supertest/src/",
     "lint": "eslint src --fix",
     "watch": "tsc -p tsconfig.build.json --watch",
     "typecheck": "tsc --noEmit"

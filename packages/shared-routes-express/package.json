@@ -10,8 +10,7 @@
   "scripts": {
     "build": "rm -rf ./dist && tsc -p tsconfig.build.json",
     "watch": "tsc -p tsconfig.build.json --watch",
-    "format:write": "pnpm -w format-cmd --write ./packages/shared-routes-express/src/",
-    "format:check": "pnpm -w format-cmd --check ./packages/shared-routes-express/src/",
+    "format": "pnpm -w format-cmd --write ./packages/shared-routes-express/src/",
     "lint": "eslint src --fix",
     "typecheck": "tsc --noEmit"
   },
