@@ -12,6 +12,8 @@
     "build": "rm -rf ./dist && tsc -p tsconfig.build.json",
     "watch": "tsc -p tsconfig.build.json --watch",
     "lint": "eslint src --fix",
+    "format:write": "pnpm -w format-cmd --write ./packages/shared-routes/src/",
+    "format:check": "pnpm -w format-cmd --check ./packages/shared-routes/src/",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

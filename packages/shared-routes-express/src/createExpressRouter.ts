@@ -63,6 +63,7 @@ const assignHandlersToExpressRouter = (
     default:
       const shouldNotHappen: never = route.verb;
       throw new Error(route.verb + " : This HTTP verb is not handle");
+
       return shouldNotHappen;
   }
 };
