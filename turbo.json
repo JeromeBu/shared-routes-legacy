@@ -1,12 +1,14 @@
 {
   "pipeline": {
-    "typecheck": {"outputs": []},
+    "typecheck": { "outputs": [] },
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
     },
     "test": { "dependsOn": ["build"] },
     "lint": { "outputs": [] },
+    "format:write": {},
+    "format:check": {},
     "watch": { "outputs": ["dist/**"] },
     "dev": {
       "cache": false
