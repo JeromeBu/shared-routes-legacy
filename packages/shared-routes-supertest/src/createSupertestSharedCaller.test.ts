@@ -83,7 +83,7 @@ describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
     const supertestRequest = supertest(app);
     const supertestSharedCaller = createSupertestSharedCaller(
       mySharedRoutes,
-      supertestRequest
+      supertestRequest,
     );
 
     const heyBook: Book = { title: "Hey", author: "Steeve" };
@@ -104,7 +104,7 @@ describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
     const supertestRequest = supertest(app);
     const supertestSharedCaller = createSupertestSharedCaller(
       mySharedRoutes,
-      supertestRequest
+      supertestRequest,
     );
 
     const getAllBooksResponse = await supertestSharedCaller.getAllBooks({
@@ -121,7 +121,7 @@ describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
     const supertestRequest = supertest(app);
     const supertestSharedCaller = createSupertestSharedCaller(
       mySharedRoutes,
-      supertestRequest
+      supertestRequest,
     );
 
     const heyBook: Book = { title: "Hey", author: "Steeve" };

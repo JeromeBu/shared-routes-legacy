@@ -42,7 +42,7 @@ describe("createAxiosSharedCaller", () => {
         {
           body: { title: "lala", author: "bob" },
         },
-        { headers: { authorization: "some-token" } }
+        { headers: { authorization: "some-token" } },
       );
       addBookResponse.data; // type is void, as expected
 

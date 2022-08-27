@@ -12,7 +12,7 @@ const keys = <Obj extends Record<string, unknown>>(obj: Obj): (keyof Obj)[] =>
 const applyVerbAndPath = (
   supertestRequest: SuperTest<Test>,
   route: SharedRoute<string, any, any, any>,
-  options: DefineRoutesOptions
+  options: DefineRoutesOptions,
 ) => {
   const routePath = options.pathPrefix + route.path;
 
@@ -65,17 +65,17 @@ type AnyObj = Record<string, unknown>;
 type EmptyObj = Record<string, never>;
 
 export const createSupertestSharedCaller = <
-  R extends Record<string, SharedRoute<string, unknown, unknown, unknown>>
+  R extends Record<string, SharedRoute<string, unknown, unknown, unknown>>,
 >(
   { routes, routeOptions }: { routes: R; routeOptions: DefineRoutesOptions },
-  supertestRequest: SuperTest<Test>
+  supertestRequest: SuperTest<Test>,
 ): {
   [K in keyof R]: (
     // prettier-ignore
     params: ({ headers?: Record<string, string> })
       & (PathParameters<R[K]["path"]> extends EmptyObj ? AnyObj : { params: PathParameters<R[K]["path"]> })
       & (z.infer<R[K]["bodySchema"]> extends void ? AnyObj : { body: z.infer<R[K]["bodySchema"]> })
-      & (z.infer<R[K]["querySchema"]> extends void ? AnyObj : { query: z.infer<R[K]["querySchema"]> })
+      & (z.infer<R[K]["querySchema"]> extends void ? AnyObj : { query: z.infer<R[K]["querySchema"]> }),
   ) => Promise<SupertestResponseWithOutput<z.infer<R[K]["outputSchema"]>>>;
 } => {
   const objectOfHandlers = {} as Record<keyof R, (...handlers: any[]) => any>;
@@ -85,7 +85,7 @@ export const createSupertestSharedCaller = <
     objectOfHandlers[routeName] = applyVerbAndPath(
       supertestRequest,
       sharedRoute,
-      { pathPrefix: routeOptions.pathPrefix }
+      { pathPrefix: routeOptions.pathPrefix },
     );
   });
 

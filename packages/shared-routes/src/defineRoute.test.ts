@@ -19,8 +19,8 @@ describe("defineRoutes", () => {
 
     expect(createMySharedRoutes).toThrowError(
       new Error(
-        "You cannot have several routes with same verb and path, got: POST /books twice (at least)"
-      )
+        "You cannot have several routes with same verb and path, got: POST /books twice (at least)",
+      ),
     );
   });
 

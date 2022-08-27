@@ -13,7 +13,7 @@ export type AxiosSharedRoutesOptions = {
 const applyVerbAndPath = (
   axios: AxiosInstance,
   route: SharedRoute<string, any, any, any>,
-  options: AxiosSharedRoutesOptions & DefineRoutesOptions
+  options: AxiosSharedRoutesOptions & DefineRoutesOptions,
 ) => {
   const routePath = options.pathPrefix + options.proxyPrefix + route.path;
 
@@ -60,18 +60,18 @@ type AnyObj = Record<string, unknown>;
 type EmptyObj = Record<string, never>;
 
 export const createAxiosSharedCaller = <
-  R extends Record<string, SharedRoute<string, unknown, unknown, unknown>>
+  R extends Record<string, SharedRoute<string, unknown, unknown, unknown>>,
 >(
   { routes, routeOptions }: { routes: R; routeOptions: DefineRoutesOptions },
   axios: AxiosInstance,
-  options?: AxiosSharedRoutesOptions
+  options?: AxiosSharedRoutesOptions,
 ): {
   [K in keyof R]: (
     // prettier-ignore
     params: (PathParameters<R[K]["path"]> extends EmptyObj ? AnyObj : {params: PathParameters<R[K]["path"]>})
       & (z.infer<R[K]["bodySchema"]> extends void ? AnyObj : { body: z.infer<R[K]["bodySchema"]> })
       & (z.infer<R[K]["querySchema"]> extends void ? AnyObj : { query: z.infer<R[K]["querySchema"]> }),
-    config?: AxiosRequestConfig
+    config?: AxiosRequestConfig,
   ) => Promise<AxiosResponse<z.infer<R[K]["outputSchema"]>>>;
 } => {
   const objectOfHandlers = {} as Record<
