@@ -32,7 +32,7 @@ const keys = <Obj extends Record<string, unknown>>(obj: Obj): (keyof Obj)[] =>
 
 export const replacePathWithParams = <Path extends string>(
   path: Path,
-  params: PathParameters<Path>
+  params: PathParameters<Path>,
 ): string => {
   const paramNames = keys(params);
   if (paramNames.length === 0) return path;

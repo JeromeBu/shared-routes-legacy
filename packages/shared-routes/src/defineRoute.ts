@@ -15,23 +15,23 @@ type SharedRouteWithOptional<
   Path extends string,
   Body,
   Query,
-  Output
+  Output,
 > = VerbAndPath<Path> & OptionalFields<Body, Query, Output>;
 
 export type SharedRoute<
   Path extends string,
   Body,
   Query,
-  Output
+  Output,
 > = VerbAndPath<Path> & Required<OptionalFields<Body, Query, Output>>;
 
 export const defineRoute = <
   Path extends string,
   Body = void,
   Query = void,
-  Output = void
+  Output = void,
 >(
-  route: SharedRouteWithOptional<Path, Body, Query, Output>
+  route: SharedRouteWithOptional<Path, Body, Query, Output>,
 ): SharedRoute<Path, Body, Query, Output> => ({
   bodySchema: z.object({}).strict() as any,
   querySchema: z.object({}).strict() as any,
@@ -47,7 +47,7 @@ export const defineRoutes = <T extends Record<string, unknown>>(
   routes: {
     [K in keyof T]: T[K];
   },
-  routeOptions: DefineRoutesOptions = { pathPrefix: "/" }
+  routeOptions: DefineRoutesOptions = { pathPrefix: "/" },
 ) => {
   const occurrencesByPathAndVerb: Record<string, number> = {};
 
@@ -58,7 +58,7 @@ export const defineRoutes = <T extends Record<string, unknown>>(
     const occurrence = (occurrencesByPathAndVerb[name] ?? 0) + 1;
     if (occurrence > 1)
       throw new Error(
-        `You cannot have several routes with same verb and path, got: ${name} twice (at least)`
+        `You cannot have several routes with same verb and path, got: ${name} twice (at least)`,
       );
     occurrencesByPathAndVerb[name] = occurrence;
   }
@@ -70,5 +70,5 @@ export const defineRoutes = <T extends Record<string, unknown>>(
 
 export const definePrefixedRoute = <T extends Record<string, unknown>>(
   pathPrefix: string,
-  routeDefinitions: { [K in keyof T]: T[K] }
+  routeDefinitions: { [K in keyof T]: T[K] },
 ) => defineRoutes(routeDefinitions, { pathPrefix });

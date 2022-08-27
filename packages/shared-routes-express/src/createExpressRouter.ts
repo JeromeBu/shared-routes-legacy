@@ -17,7 +17,7 @@ const keys = <Obj extends Record<string, unknown>>(obj: Obj): (keyof Obj)[] =>
 const makeValidationMiddleware =
   (
     route: SharedRoute<string, any, any, any>,
-    options: ExpressSharedRouteOptions
+    options: ExpressSharedRouteOptions,
   ): RequestHandler =>
   (req, res, next) => {
     try {
@@ -31,8 +31,8 @@ const makeValidationMiddleware =
       res.status(400);
       res.json(
         error.issues.map(
-          ({ message, path }) => `${path.join(".")} : ${message}`
-        )
+          ({ message, path }) => `${path.join(".")} : ${message}`,
+        ),
       );
     }
   };
@@ -40,7 +40,7 @@ const makeValidationMiddleware =
 const assignHandlersToExpressRouter = (
   expressRouter: Router,
   route: SharedRoute<any, any, any, any>,
-  options: ExpressSharedRouteOptions & DefineRoutesOptions
+  options: ExpressSharedRouteOptions & DefineRoutesOptions,
 ) => {
   const validationMiddleware = makeValidationMiddleware(route, options);
 
@@ -68,11 +68,11 @@ const assignHandlersToExpressRouter = (
 };
 
 export const createExpressSharedRouter = <
-  R extends Record<string, SharedRoute<string, unknown, unknown, unknown>>
+  R extends Record<string, SharedRoute<string, unknown, unknown, unknown>>,
 >(
   { routes, routeOptions }: { routes: R; routeOptions: DefineRoutesOptions },
   expressRouter: Router,
-  options?: ExpressSharedRouteOptions
+  options?: ExpressSharedRouteOptions,
 ): {
   sharedRouter: {
     [K in keyof R]: (
@@ -102,7 +102,7 @@ export const createExpressSharedRouter = <
         withBodyValidation: false,
         ...options,
         ...routeOptions,
-      }
+      },
     );
   });
 
