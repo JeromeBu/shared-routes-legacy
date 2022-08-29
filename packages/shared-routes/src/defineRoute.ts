@@ -72,3 +72,40 @@ export const definePrefixedRoute = <T extends Record<string, unknown>>(
   pathPrefix: string,
   routeDefinitions: { [K in keyof T]: T[K] },
 ) => defineRoutes(routeDefinitions, { pathPrefix });
+
+export const combineRouters = <
+  T extends Record<
+    string,
+    Record<string, SharedRoute<string, unknown, unknown, unknown>>
+  >,
+  Routers extends {
+    [RouterName in keyof T]: {
+      [RouteLabel in keyof T[RouterName]]: T[RouterName][RouteLabel];
+    };
+  },
+>(
+  sharedRouters: Routers,
+): { sharedRouters: Routers; listRoutes: () => string[] } => {
+  const occurrencesByPathAndVerb: Record<string, number> = {};
+
+  for (const routerName of Object.keys(sharedRouters)) {
+    const sharedRouter = sharedRouters[routerName];
+    for (const sharedRoute of Object.values(sharedRouter)) {
+      const name = `${(
+        sharedRoute as SharedRoute<any, any, any, any>
+      ).verb.toUpperCase()} /${[
+        routerName.toLowerCase(),
+        ...(sharedRoute.path ? [sharedRoute.path.toLowerCase()] : []),
+      ].join("/")}`;
+      const occurrence = (occurrencesByPathAndVerb[name] ?? 0) + 1;
+      if (occurrence > 1)
+        throw new Error(
+          `You cannot have several routes with same verb and path, got: ${name} twice (at least)`,
+        );
+      occurrencesByPathAndVerb[name] = occurrence;
+    }
+  }
+
+  const listRoutes = () => Object.keys(occurrencesByPathAndVerb);
+  return { sharedRouters: sharedRouters, listRoutes };
+};
