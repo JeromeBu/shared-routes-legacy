@@ -7,8 +7,8 @@ import type { IRoute, RequestHandler, Router } from "express";
 import { z, ZodError } from "zod";
 
 type ExpressSharedRouteOptions = {
-  withBodyValidation?: boolean;
-  withQueryValidation?: boolean;
+  skipBodyValidation?: boolean;
+  skipQueryValidation?: boolean;
 };
 
 const keys = <Obj extends Record<string, unknown>>(obj: Obj): (keyof Obj)[] =>
@@ -21,8 +21,8 @@ const makeValidationMiddleware =
   ): RequestHandler =>
   (req, res, next) => {
     try {
-      if (options.withBodyValidation) route.bodySchema.parse(req.body);
-      if (options.withQueryValidation) {
+      if (!options.skipBodyValidation) route.bodySchema.parse(req.body);
+      if (!options.skipQueryValidation) {
         req.query = route.querySchema.parse(req.query);
       }
       next();
@@ -43,23 +43,24 @@ const assignHandlersToExpressRouter = (
   options: ExpressSharedRouteOptions & DefineRoutesOptions,
 ) => {
   const validationMiddleware = makeValidationMiddleware(route, options);
+  const path = `/${route.path}`;
 
   switch (route.verb) {
     case "get":
       return (...handlers: RequestHandler[]) =>
-        expressRouter.route(route.path).get(validationMiddleware, handlers);
+        expressRouter.route(path).get(validationMiddleware, handlers);
     case "post":
       return (...handlers: RequestHandler[]) =>
-        expressRouter.route(route.path).post(validationMiddleware, handlers);
+        expressRouter.route(path).post(validationMiddleware, handlers);
     case "put":
       return (...handlers: RequestHandler[]) =>
-        expressRouter.route(route.path).put(validationMiddleware, handlers);
+        expressRouter.route(path).put(validationMiddleware, handlers);
     case "patch":
       return (...handlers: RequestHandler[]) =>
-        expressRouter.route(route.path).patch(validationMiddleware, handlers);
+        expressRouter.route(path).patch(validationMiddleware, handlers);
     case "delete":
       return (...handlers: RequestHandler[]) =>
-        expressRouter.route(route.path).delete(validationMiddleware, handlers);
+        expressRouter.route(path).delete(validationMiddleware, handlers);
     default:
       const shouldNotHappen: never = route.verb;
       throw new Error(route.verb + " : This HTTP verb is not handle");
@@ -69,19 +70,26 @@ const assignHandlersToExpressRouter = (
 };
 
 export const createExpressSharedRouter = <
-  R extends Record<string, SharedRoute<string, unknown, unknown, unknown>>,
+  SharedRouters extends Record<
+    string,
+    Record<string, SharedRoute<string, unknown, unknown, unknown>>
+  >,
+  RouterName extends keyof SharedRouters,
 >(
-  { routes, routeOptions }: { routes: R; routeOptions: DefineRoutesOptions },
+  {
+    sharedRouters,
+    routerName,
+  }: { sharedRouters: SharedRouters; routerName: RouterName },
   expressRouter: Router,
   options?: ExpressSharedRouteOptions,
 ): {
-  sharedRouter: {
-    [K in keyof R]: (
+  expressSharedRouter: {
+    [K in keyof SharedRouters[RouterName]]: (
       ...handlers: RequestHandler<
-        PathParameters<R[K]["path"]>,
-        z.infer<R[K]["outputSchema"]>,
-        z.infer<R[K]["bodySchema"]>,
-        z.infer<R[K]["querySchema"]>,
+        PathParameters<SharedRouters[RouterName][K]["path"]>,
+        z.infer<SharedRouters[RouterName][K]["outputSchema"]>,
+        z.infer<SharedRouters[RouterName][K]["bodySchema"]>,
+        z.infer<SharedRouters[RouterName][K]["querySchema"]>,
         any
       >[]
     ) => IRoute;
@@ -89,9 +97,11 @@ export const createExpressSharedRouter = <
   pathPrefix: string;
 } => {
   const objectOfHandlers = {} as Record<
-    keyof R,
+    keyof SharedRouters[RouterName],
     (...handlers: RequestHandler[]) => IRoute
   >;
+
+  const routes = sharedRouters[routerName];
 
   keys(routes).forEach((routeName) => {
     const sharedRoute = routes[routeName];
@@ -99,16 +109,16 @@ export const createExpressSharedRouter = <
       expressRouter,
       sharedRoute,
       {
-        withQueryValidation: false,
-        withBodyValidation: false,
+        skipQueryValidation: false,
+        skipBodyValidation: false,
         ...options,
-        ...routeOptions,
+        pathPrefix: routerName as string,
       },
     );
   });
 
   return {
-    sharedRouter: objectOfHandlers as any,
-    pathPrefix: routeOptions.pathPrefix,
+    expressSharedRouter: objectOfHandlers as any,
+    pathPrefix: `/${routerName as string}`,
   };
 };

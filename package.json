@@ -16,7 +16,7 @@
     "typecheck": "turbo run typecheck",
     "tsc-cmd": "tsc",
     "format-cmd": "prettier",
-    "fullcheck": "turbo run format lint typecheck test",
+    "fullcheck": "turbo run build format lint typecheck test",
     "pre-commit": "lint-staged",
     "pre-push": "pnpm fullcheck",
     "prepare": "husky install"

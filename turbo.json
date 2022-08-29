@@ -1,6 +1,6 @@
 {
   "pipeline": {
-    "typecheck": { "outputs": [] },
+    "typecheck": { "dependsOn": ["^build"] },
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
