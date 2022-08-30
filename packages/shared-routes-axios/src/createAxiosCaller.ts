@@ -60,30 +60,52 @@ type AnyObj = Record<string, unknown>;
 type EmptyObj = Record<string, never>;
 
 export const createAxiosSharedCaller = <
-  R extends Record<string, SharedRoute<string, unknown, unknown, unknown>>,
+  Routers extends Record<
+    string,
+    Record<string, SharedRoute<string, unknown, unknown, unknown>>
+  >,
 >(
-  { routes, routeOptions }: { routes: R; routeOptions: DefineRoutesOptions },
+  sharedRouters: Routers,
   axios: AxiosInstance,
   options?: AxiosSharedRoutesOptions,
 ): {
-  [K in keyof R]: (
-    // prettier-ignore
-    params: (PathParameters<R[K]["path"]> extends EmptyObj ? AnyObj : {params: PathParameters<R[K]["path"]>})
-      & (z.infer<R[K]["bodySchema"]> extends void ? AnyObj : { body: z.infer<R[K]["bodySchema"]> })
-      & (z.infer<R[K]["querySchema"]> extends void ? AnyObj : { query: z.infer<R[K]["querySchema"]> }),
-    config?: AxiosRequestConfig,
-  ) => Promise<AxiosResponse<z.infer<R[K]["outputSchema"]>>>;
+  [RouterName in keyof Routers]: {
+    [K in keyof Routers[RouterName]]: (
+      // prettier-ignore
+      params: (PathParameters<Routers[RouterName][K]["path"]> extends EmptyObj ? AnyObj : {params: PathParameters<Routers[RouterName][K]["path"]>})
+        & (z.infer<Routers[RouterName][K]["bodySchema"]> extends void ? AnyObj : { body: z.infer<Routers[RouterName][K]["bodySchema"]> })
+        & (z.infer<Routers[RouterName][K]["querySchema"]> extends void ? AnyObj : { query: z.infer<Routers[RouterName][K]["querySchema"]> }),
+      config?: AxiosRequestConfig,
+    ) => Promise<
+      AxiosResponse<z.infer<Routers[RouterName][K]["outputSchema"]>>
+    >;
+  };
 } => {
-  const objectOfHandlers = {} as Record<
-    keyof R,
-    (params: { body: any; query: any }, config?: any) => Promise<any>
-  >;
+  const objectOfHandlers = {} as {
+    [RouterName in keyof Routers]: {
+      [K in keyof Routers[RouterName]]: (
+        params: { body: any; query: any },
+        config?: any,
+      ) => Promise<any>;
+    };
+  };
 
-  keys(routes).forEach((routeName) => {
-    const sharedRoute = routes[routeName];
-    objectOfHandlers[routeName] = applyVerbAndPath(axios, sharedRoute, {
-      proxyPrefix: options?.proxyPrefix ?? "",
-      ...routeOptions,
+  keys(sharedRouters).forEach((routerName) => {
+    const router = sharedRouters[routerName];
+    if (!objectOfHandlers[routerName]) {
+      objectOfHandlers[routerName] = {} as any;
+    }
+
+    keys(router).forEach((route) => {
+      const sharedRoute = router[route];
+      objectOfHandlers[routerName][route] = applyVerbAndPath(
+        axios,
+        sharedRoute,
+        {
+          proxyPrefix: options?.proxyPrefix ?? "",
+          pathPrefix: routerName as string,
+        },
+      );
     });
   });
 
