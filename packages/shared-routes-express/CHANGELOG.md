@@ -1,5 +1,16 @@
 # shared-routes-express
 
+## 0.4.0
+
+### Minor Changes
+
+- improve interafce to use an object sharedRouters with keys as router names
+
+### Patch Changes
+
+- Updated dependencies
+  - shared-routes@0.4.0
+
 ## 0.3.0
 
 ### Patch Changes
