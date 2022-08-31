@@ -1,5 +1,11 @@
 # shared-routes
 
+## 0.4.0
+
+### Minor Changes
+
+- improve interafce to use an object sharedRouters with keys as router names
+
 ## 0.3.0
 
 ### Minor Changes
