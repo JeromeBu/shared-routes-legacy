@@ -15,6 +15,8 @@ You can decide to use only the packages which suits your need, you will need `sh
 
 ```shell
 npm install shared-routes
+# zod is necessary for schema definitions
+npm install zod
 
 # those you need :
 npm install shared-routes-axios
@@ -36,24 +38,38 @@ const bookSchema: z.Schema<Book> = z.object({
   author: z.string(),
 });
 
-const mySharedRoutes = defineRoutes({
-  addBook: defineRoute({
-    verb: "post",
-    path: "/books",
-    bodySchema: bookSchema,
-  }),
-  getAllBooks: defineRoute({
-    verb: "get",
-    path: "/books",
-    querySchema: z.object({ max: z.number() }),
-    outputSchema: z.array(bookSchema),
-  }),
-  getBookByTitle: defineRoute({
-    verb: "get",
-    path: `/books/:title`,
-    outputSchema: z.union([bookSchema, z.undefined()]),
-  }),
+export const { sharedRouters, listRoutes } = combineRouters({
+  books: {
+    addBook: defineRoute({
+      verb: "post",
+      path: "",
+      bodySchema: bookSchema,
+    }),
+    getAllBooks: defineRoute({
+      verb: "get",
+      path: "",
+      querySchema: z.object({ max: z.number() }),
+      outputSchema: z.array(bookSchema),
+    }),
+    getBookByTitle: defineRoute({
+      verb: "get",
+      path: `:title`,
+      outputSchema: z.union([bookSchema, z.undefined()]),
+    }),
+  }
 });
+```
+
+`listRoutes` will give you the list of routes included in shared routers, in this case :
+
+```typescript
+listRoutes() 
+// would output :
+  [
+    "POST /books",
+    "GET /books",
+    "GET /books/:title"
+  ]
 ```
 
 [Zod library](https://github.com/colinhacks/zod) is used for schema definitions.
@@ -61,29 +77,28 @@ You can decide for each server / consumer if you want the actual validation to b
 
 ## Usage with express
 
-Here is an exemple of usage with express, using the previously defined `mySharedRoutes`:
+Here is an example of usage with express, using the previously defined `mySharedRoutes`:
 
 ```typescript
-import express, { Router } from "express";
+import express, { Router as ExpressRouter } from "express";
 import bodyParser from "body-parser";
 import { createExpressSharedRouter } from "shared-routes-express";
+import { sharedRouters } from "path/to/where/sharedRouters/are/defined"
 
 const fakeAuthToken = "my-token";
 
-const createExempleApp = () => {
-  const app = express();
-  app.use(bodyParser.json());
+type PathAndExpressRouter = [string, ExpressRouter];
 
+const createBookRouter = (): PathAndExpressRouter => {
   const bookDB: Book[] = [];
+  const expressRouter = ExpressRouter();
 
-  const expressRouter = Router();
-  const expressSharedRouter = createExpressSharedRouter(
-    mySharedRoutes,
+  const { expressSharedRouter, pathPrefix } = createExpressSharedRouter(
+    { sharedRouters, routerName: "books" },
     expressRouter,
-    { withBodyValidation: true, withQueryValidation: true }
+    { skipQueryValidation: true, skipBodyValidation: false },
   );
 
-  // the routes are typed for the previously defined shared-routes
   expressSharedRouter.getAllBooks((req, res) => {
     return res.json(bookDB);
   });
@@ -93,21 +108,27 @@ const createExempleApp = () => {
       res.status(401);
       return res.json();
     }
-    // req.body is of type Book
-    bookDB.push(req.body);
+    bookDB.push(req.body); // req.body is of type Book
     return res.json();
   });
 
   expressSharedRouter.getBookByTitle((req, res) => {
     const book = bookDB.find((b) => b.title === req.params.title);
-    // req.json only accepts type Book | undefined
-    return res.json(book);
+    return res.json(book); // res.json
   });
 
-  app.use(expressRouter);
+  return [pathPrefix, expressRouter];
+};
 
+const createExempleApp = () => {
+  const app = express();
+  app.use(bodyParser.json());
+  
+  app.use(...createBookRouter());
+  
   return app;
 };
+
 ```
 
 You are able to add middlewares, just as you would with a classic express router.
@@ -118,29 +139,26 @@ Here is an exemple of usage with supertest, using the previously defined `myShar
 
 ```typescript
 import { createSupertestSharedCaller } from "shared-routes-supertest";
+import { sharedRouters } from "path/to/where/sharedRouters/are/defined"
 
 const fakeAuthToken = "my-token";
 
 const app = createExempleApp();
 const supertestRequest = supertest(app);
 const supertestSharedCaller = createSupertestSharedCaller(
-  mySharedRoutes,
+  sharedRouters,
   supertestRequest
 );
 
 const heyBook: Book = { title: "Hey", author: "Steeve" };
-const addBookResponse = await supertestSharedCaller.addBook({
+const addBookResponse = await supertestSharedCaller.books.addBook({
   body: heyBook,
-  query: undefined,
-  params: {},
   headers: { authorization: fakeAuthToken },
 });
 expect(addBookResponse.status).toBe(200);
 
-const getAllBooksResponse = await supertestSharedCaller.getAllBooks({
-  body: undefined,
+const getAllBooksResponse = await supertestSharedCaller.books.getAllBooks({
   query: { max: 5 },
-  params: {},
 });
 expect(getAllBooksResponse.status).toBe(200);
 // getAllBooksResponse.body is of type Book[]
@@ -155,24 +173,19 @@ You can see the express app and the supertest exemple tested in this file :
 ```typescript
 import { createAxiosSharedCaller } from "shared-routes-axios";
 import axios from "axios";
+import { sharedRouters } from "path/to/where/sharedRouters/are/defined"
 
-const axiosSharedCaller = createAxiosSharedCaller(mySharedRoutes, axios, {
-  prefix: "/api",
+const axiosSharedCaller = createAxiosSharedCaller(sharedRouters, axios, {
+  proxyPrefix: "/api",
 });
 
 const getAllBooksResponse = await axiosSharedCaller.getAllBooks({
   query: { max: 3 },
-  body: undefined,
-  params: {},
 });
-
 // getAllBooksResponse.data is of type Book[]
 
 const getByTitleResponse = await axiosSharedCaller.getByTitle({
-  query: undefined,
-  body: undefined,
   params: { title: "great" },
 });
-
 // getByTitleResponse.data is of type Book | undefined
 ```
