@@ -1,5 +1,10 @@
 {
   "extends": "tsconfig/base.json",
+  "compilerOptions": {
+    "paths": {
+      "shared": ["../shared-routes/index.ts"]
+    }
+  },
   "include": ["."],
-  "exclude": ["dist", "build", "node_modules", ]
+  "exclude": ["dist", "build", "node_modules"]
 }
