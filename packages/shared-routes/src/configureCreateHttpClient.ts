@@ -1,10 +1,11 @@
 import { z } from "zod";
-import { UnknownSharedRoute } from "./defineRoutes";
+import { SharedRoute, UnknownSharedRoute } from "./defineRoutes";
 import {
   PathParameters,
   replaceParamsInUrl,
   ReplaceParamsInUrl,
   keys,
+  Url,
 } from "./pathParameters";
 
 type AnyObj = Record<string, unknown>;
@@ -20,23 +21,30 @@ export type HttpClient<
 > = {
   [RouteName in keyof SharedRoutes]: (
     // prettier-ignore
-    params: (PathParameters<SharedRoutes[RouteName]["url"]> extends EmptyObj ? AnyObj : { urlParams: PathParameters<SharedRoutes[RouteName]["url"]>})
-      & (z.infer<SharedRoutes[RouteName]["bodySchema"]> extends void ? AnyObj : { body: z.infer<SharedRoutes[RouteName]["bodySchema"]> })
-      & (z.infer<SharedRoutes[RouteName]["queryParamsSchema"]> extends void ? AnyObj : { queryParams: z.infer<SharedRoutes[RouteName]["queryParamsSchema"]> })
-      & (z.infer<SharedRoutes[RouteName]["headersSchema"]> extends void ? AnyObj : { headers: z.infer<SharedRoutes[RouteName]["headersSchema"]> }),
+    ...params: [SharedRoutes[RouteName], PathParameters<SharedRoutes[RouteName]["url"]>] extends [SharedRoute<Url, void, void, unknown, void>, EmptyObj]
+      ? []
+      : [
+          // prettier-ignore
+          (PathParameters<SharedRoutes[RouteName]["url"]> extends EmptyObj ? AnyObj : { urlParams: PathParameters<SharedRoutes[RouteName]["url"]>})
+          & (z.infer<SharedRoutes[RouteName]["bodySchema"]> extends void ? AnyObj : { body: z.infer<SharedRoutes[RouteName]["bodySchema"]> })
+          & (z.infer<SharedRoutes[RouteName]["queryParamsSchema"]> extends void ? AnyObj : { queryParams: z.infer<SharedRoutes[RouteName]["queryParamsSchema"]> })
+          & (z.infer<SharedRoutes[RouteName]["headersSchema"]> extends void ? AnyObj : { headers: z.infer<SharedRoutes[RouteName]["headersSchema"]> }),
+        ]
   ) => Promise<
     HttpResponse<z.infer<SharedRoutes[RouteName]["responseBodySchema"]>>
   >;
 };
 
-type HandlerParams = {
-  body?: any;
-  urlParams?: any;
-  queryParams?: any;
-  headers?: any;
-};
+type HandlerParams =
+  | {
+      body?: any;
+      urlParams?: any;
+      queryParams?: any;
+      headers?: any;
+    }
+  | EmptyObj;
 
-type Handler = (params: HandlerParams) => Promise<HttpResponse<unknown>>;
+type Handler = (params?: HandlerParams) => Promise<HttpResponse<unknown>>;
 
 export type HandlerCreator = (
   route: UnknownSharedRoute,

@@ -11,7 +11,7 @@ const supertestRequestToCorrectHttpMethod = (
 export const createSupertestHandlerCreator =
   (supertestRequest: SuperTest<Test>): HandlerCreator =>
   (route, replaceParamsInUrl) =>
-  async ({ headers, body, queryParams, urlParams }) =>
+  async ({ headers, body, queryParams, urlParams } = {}) =>
     supertestRequestToCorrectHttpMethod(
       supertestRequest,
       route.method,

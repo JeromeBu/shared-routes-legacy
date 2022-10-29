@@ -5,7 +5,7 @@ import { configureCreateHttpClient, HandlerCreator } from "shared-routes";
 export const createAxiosHandlerCreator =
   (axios: AxiosInstance): HandlerCreator =>
   (route, replaceParamsInUrl) =>
-  async ({ body, urlParams, queryParams, headers }) => {
+  async ({ body, urlParams, queryParams, headers } = {}) => {
     const { data, ...rest } = await axios.request({
       method: route.method,
       url: replaceParamsInUrl(route.url, urlParams),

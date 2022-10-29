@@ -36,7 +36,12 @@ const { routes, listRoutes } = defineRoutes({
   getBookByTitle: defineRoute({
     method: "get",
     url: "/books/:title",
-    responseBodySchema: z.union([bookSchema, z.undefined()]),
+    responseBodySchema: bookSchema.optional(),
+  }),
+  getBookWithoutParams: defineRoute({
+    method: "get",
+    url: "/no-params",
+    responseBodySchema: bookSchema.optional(),
   }),
 });
 
@@ -102,6 +107,7 @@ describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
       "POST /books",
       "GET /books",
       "GET /books/:title",
+      "GET /no-params",
     ]);
 
     console.log("STATUS : ", addBookResponse.status);
@@ -161,6 +167,9 @@ describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
     });
     expectToEqual(fetchedBookResponse.body, heyBook);
     expect(fetchedBookResponse.status).toBe(200);
+
+    // should compile without having to provide any params
+    const { body, status } = await supertestSharedCaller.getBookWithoutParams();
   });
 });
 
