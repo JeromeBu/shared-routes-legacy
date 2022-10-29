@@ -1,1 +1,4 @@
-export { createAxiosSharedCaller } from "./src/createAxiosCaller";
+export {
+  createAxiosSharedClient,
+  createAxiosHandlerCreator,
+} from "./src/createAxiosSharedClient";

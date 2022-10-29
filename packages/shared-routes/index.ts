@@ -10,4 +10,4 @@ export type {
   UnknownSharedRoute,
 } from "./src/defineRoutes";
 export type { PathParameters, Url } from "./src/pathParameters";
-export { replaceParamsInUrl, keys } from "./src/pathParameters";
+export { keys } from "./src/pathParameters";

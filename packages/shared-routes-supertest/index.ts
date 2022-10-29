@@ -1,1 +1,1 @@
-export { createSupertestSharedCaller } from "./src/createSupertestSharedCaller";
+export { createSupertestSharedClient } from "./src/createSupertestSharedClient";

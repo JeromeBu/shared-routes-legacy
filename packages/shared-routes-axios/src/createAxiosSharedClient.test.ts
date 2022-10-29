@@ -1,7 +1,7 @@
 import axios from "axios";
 import { defineRoute, defineRoutes } from "shared-routes";
 import { z } from "zod";
-import { createAxiosSharedCaller } from "./createAxiosCaller";
+import { createAxiosSharedClient } from "./createAxiosSharedClient";
 
 describe("createAxiosSharedCaller", () => {
   it("create a caller from axios and sharedRoutes object", async () => {
@@ -27,7 +27,7 @@ describe("createAxiosSharedCaller", () => {
       }),
     });
 
-    const axiosSharedCaller = createAxiosSharedCaller(routes, axios);
+    const axiosSharedCaller = createAxiosSharedClient(routes, axios);
 
     expect(listRoutes()).toEqual([
       "POST /books",
@@ -42,17 +42,17 @@ describe("createAxiosSharedCaller", () => {
         body: { title: "lala", author: "bob" },
         headers: { authorization: "some-token" },
       });
-      addBookResponse.data; // type is void, as expected
+      addBookResponse.body; // type is void, as expected
 
       const getAllBooksResponse = await axiosSharedCaller.getAllBooks({
         queryParams: { max: 3 },
       });
-      getAllBooksResponse.data; // type is Book[], as expected
+      getAllBooksResponse.body; // type is Book[], as expected
 
       const getByTitleResponse = await axiosSharedCaller.getByTitle({
-        params: { title: "great" },
+        urlParams: { title: "great" },
       });
-      getByTitleResponse.data; // type is Book[], as expected
+      getByTitleResponse.body; // type is Book[], as expected
     };
   });
 
@@ -77,17 +77,17 @@ describe("createAxiosSharedCaller", () => {
       "GET https://jsonplaceholder.typicode.com/todos/:todoid",
     ]);
 
-    const axiosCaller = createAxiosSharedCaller(routes, axios);
+    const axiosCaller = createAxiosSharedClient(routes, axios);
     const response = await axiosCaller.getByTodoById({
-      params: { todoId: "3" },
+      urlParams: { todoId: "3" },
     });
-    const expectedBody: z.infer<typeof todoSchema> = {
+    const expectedResponseBody: z.infer<typeof todoSchema> = {
       id: 3,
       userId: 1,
       completed: false,
       title: "fugiat veniam minus",
     };
-    expect(response.data).toEqual(expectedBody);
+    expect(response.body).toEqual(expectedResponseBody);
     expect(response.status).toBe(200);
   });
 });

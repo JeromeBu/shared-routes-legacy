@@ -1,7 +1,7 @@
 import { defineRoute, defineRoutes } from "shared-routes";
 import { createExpressSharedRouter } from "shared-routes-express";
 import { z } from "zod";
-import { createSupertestSharedCaller } from "./createSupertestSharedCaller";
+import { createSupertestSharedClient } from "./createSupertestSharedClient";
 import supertest from "supertest";
 import express from "express";
 import bodyParser from "body-parser";
@@ -89,7 +89,7 @@ describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
   it("fails to add if not authenticated", async () => {
     const app = createExempleApp();
     const supertestRequest = supertest(app);
-    const supertestSharedCaller = createSupertestSharedCaller(
+    const supertestSharedCaller = createSupertestSharedClient(
       routes,
       supertestRequest,
     );
@@ -114,7 +114,7 @@ describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
   it("fails explicitly when the schema is not respected", async () => {
     const app = createExempleApp();
     const supertestRequest = supertest(app);
-    const supertestSharedCaller = createSupertestSharedCaller(
+    const supertestSharedCaller = createSupertestSharedClient(
       routes,
       supertestRequest,
     );
@@ -131,7 +131,7 @@ describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
   it("create an express app and a supertest instance with the same sharedRoutes object", async () => {
     const app = createExempleApp();
     const supertestRequest = supertest(app);
-    const supertestSharedCaller = createSupertestSharedCaller(
+    const supertestSharedCaller = createSupertestSharedClient(
       routes,
       supertestRequest,
     );
@@ -158,7 +158,7 @@ describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
     expect(getAllBooksResponse.status).toBe(200);
 
     const fetchedBookResponse = await supertestSharedCaller.getBookByTitle({
-      params: { title: "Hey" },
+      urlParams: { title: "Hey" },
     });
     expectToEqual(fetchedBookResponse.body, heyBook);
     expect(fetchedBookResponse.status).toBe(200);
