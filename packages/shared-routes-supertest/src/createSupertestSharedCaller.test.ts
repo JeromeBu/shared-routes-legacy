@@ -1,4 +1,4 @@
-import { defineRoute, combineRouters } from "shared-routes";
+import { defineRoute, defineRoutes } from "shared-routes";
 import { createExpressSharedRouter } from "shared-routes-express";
 import { z } from "zod";
 import { createSupertestSharedCaller } from "./createSupertestSharedCaller";
@@ -18,61 +18,42 @@ const bookSchema: z.Schema<Book> = z.object({
   author: z.string(),
 });
 
-const { sharedRouters, listRoutes } = combineRouters({
-  tasks: {
-    getAllTasks: defineRoute({
-      verb: "get",
-      path: "all",
-      querySchema: z.object({ max: zNumberFromString }),
-      outputSchema: z.array(z.object({ taskName: z.string() })),
-    }),
-  },
-  books: {
-    addBook: defineRoute({
-      verb: "post",
-      path: "",
-      bodySchema: bookSchema,
-    }),
-    getAllBooks: defineRoute({
-      verb: "get",
-      path: "",
-      querySchema: z.object({ max: zNumberFromString }),
-      outputSchema: z.array(bookSchema),
-    }),
-    getBookByTitle: defineRoute({
-      verb: "get",
-      path: ":title",
-      outputSchema: z.union([bookSchema, z.undefined()]),
-    }),
-  },
+const { routes: taskRoutes, listRoutes: listTaskRoutes } = defineRoutes({
+  getAllTasks: defineRoute({
+    verb: "get",
+    url: "/tasks",
+    querySchema: z.object({ max: zNumberFromString }),
+    outputSchema: z.array(z.object({ taskName: z.string() })),
+  }),
+});
+
+const { routes, listRoutes } = defineRoutes({
+  addBook: defineRoute({
+    verb: "post",
+    url: "/books",
+    bodySchema: bookSchema,
+  }),
+  getAllBooks: defineRoute({
+    verb: "get",
+    url: "/books",
+    querySchema: z.object({ max: zNumberFromString }),
+    outputSchema: z.array(bookSchema),
+  }),
+  getBookByTitle: defineRoute({
+    verb: "get",
+    url: "/books/:title",
+    outputSchema: z.union([bookSchema, z.undefined()]),
+  }),
 });
 
 const fakeAuthToken = "my-token";
 
-type PathAndExpressRouter = [string, ExpressRouter];
-
-const createTaskRouter = (): PathAndExpressRouter => {
-  const expressRouter = ExpressRouter();
-
-  const { expressSharedRouter, pathPrefix } = createExpressSharedRouter(
-    { sharedRouters, routerName: "tasks" },
-    expressRouter,
-  );
-
-  expressSharedRouter.getAllTasks((req, res) => {
-    req.query.max;
-    return res.json([{ taskName: "some fake task" }]);
-  });
-
-  return [pathPrefix, expressRouter];
-};
-
-const createBookRouter = (): PathAndExpressRouter => {
+const createBookRouter = (): ExpressRouter => {
   const bookDB: Book[] = [];
   const expressRouter = ExpressRouter();
 
-  const { expressSharedRouter, pathPrefix } = createExpressSharedRouter(
-    { sharedRouters, routerName: "books" },
+  const { expressSharedRouter } = createExpressSharedRouter(
+    routes,
     expressRouter,
     { skipQueryValidation: false },
   );
@@ -100,14 +81,13 @@ const createBookRouter = (): PathAndExpressRouter => {
     return res.json(book);
   });
 
-  return [pathPrefix, expressRouter];
+  return expressRouter;
 };
 
 const createExempleApp = () => {
   const app = express();
   app.use(bodyParser.json());
-  app.use(...createTaskRouter());
-  app.use(...createBookRouter());
+  app.use(createBookRouter());
   return app;
 };
 
@@ -116,21 +96,22 @@ describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
     const app = createExempleApp();
     const supertestRequest = supertest(app);
     const supertestSharedCaller = createSupertestSharedCaller(
-      sharedRouters,
+      routes,
       supertestRequest,
     );
 
     const heyBook: Book = { title: "Hey", author: "Steeve" };
-    const addBookResponse = await supertestSharedCaller.books.addBook({
+    const addBookResponse = await supertestSharedCaller.addBook({
       body: heyBook,
     });
     expect(listRoutes()).toEqual([
-      "GET /tasks/all",
       "POST /books",
       "GET /books",
       "GET /books/:title",
     ]);
 
+    console.log("STATUS : ", addBookResponse.status);
+    console.log("BODY : ", addBookResponse.body);
     expect(addBookResponse.body).toEqual(""); // type is void, but express sends "";
     expect(addBookResponse.status).toBe(401);
   });
@@ -139,11 +120,11 @@ describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
     const app = createExempleApp();
     const supertestRequest = supertest(app);
     const supertestSharedCaller = createSupertestSharedCaller(
-      sharedRouters,
+      routes,
       supertestRequest,
     );
 
-    const getAllBooksResponse = await supertestSharedCaller.books.getAllBooks({
+    const getAllBooksResponse = await supertestSharedCaller.getAllBooks({
       query: { max: "yolo" as any },
     });
     expect(getAllBooksResponse.body).toEqual([
@@ -156,12 +137,12 @@ describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
     const app = createExempleApp();
     const supertestRequest = supertest(app);
     const supertestSharedCaller = createSupertestSharedCaller(
-      sharedRouters,
+      routes,
       supertestRequest,
     );
 
     const heyBook: Book = { title: "Hey", author: "Steeve" };
-    const addBookResponse = await supertestSharedCaller.books.addBook({
+    const addBookResponse = await supertestSharedCaller.addBook({
       body: heyBook,
       headers: { authorization: fakeAuthToken },
     });
@@ -170,21 +151,20 @@ describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
     expect(addBookResponse.status).toBe(200);
 
     const otherBook: Book = { title: "Other book", author: "Somebody" };
-    await supertestSharedCaller.books.addBook({
+    await supertestSharedCaller.addBook({
       body: otherBook,
       headers: { authorization: fakeAuthToken },
     });
 
-    const getAllBooksResponse = await supertestSharedCaller.books.getAllBooks({
+    const getAllBooksResponse = await supertestSharedCaller.getAllBooks({
       query: { max: 5 },
     });
     expectToEqual(getAllBooksResponse.body, [heyBook, otherBook]);
     expect(getAllBooksResponse.status).toBe(200);
 
-    const fetchedBookResponse =
-      await supertestSharedCaller.books.getBookByTitle({
-        params: { title: "Hey" },
-      });
+    const fetchedBookResponse = await supertestSharedCaller.getBookByTitle({
+      params: { title: "Hey" },
+    });
     expectToEqual(fetchedBookResponse.body, heyBook);
     expect(fetchedBookResponse.status).toBe(200);
   });

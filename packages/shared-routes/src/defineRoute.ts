@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { Url } from "./pathParameters";
 
 type OptionalFields<Body, Query, Output> = {
   bodySchema?: z.Schema<Body>;
@@ -6,55 +7,47 @@ type OptionalFields<Body, Query, Output> = {
   outputSchema?: z.Schema<Output>;
 };
 
-type VerbAndPath<Path extends string> = {
-  path: Path;
-  verb: "get" | "post" | "put" | "patch" | "delete";
+export type HttpMethod = "get" | "post" | "put" | "patch" | "delete";
+type VerbAndPath<U extends Url> = {
+  verb: HttpMethod;
+  url: U;
 };
 
 type SharedRouteWithOptional<
-  Path extends string,
+  U extends Url,
   Body,
   Query,
   Output,
-> = VerbAndPath<Path> & OptionalFields<Body, Query, Output>;
+> = VerbAndPath<U> & OptionalFields<Body, Query, Output>;
 
-export type SharedRoute<
-  Path extends string,
-  Body,
-  Query,
-  Output,
-> = VerbAndPath<Path> & Required<OptionalFields<Body, Query, Output>>;
+export type SharedRoute<U extends Url, Body, Query, Output> = VerbAndPath<U> &
+  Required<OptionalFields<Body, Query, Output>>;
+
+export type UnknownSharedRoute = SharedRoute<Url, unknown, unknown, unknown>;
 
 export const defineRoute = <
-  Path extends string,
+  U extends Url,
   Body = void,
   Query = void,
   Output = void,
 >(
-  route: SharedRouteWithOptional<Path, Body, Query, Output>,
-): SharedRoute<Path, Body, Query, Output> => ({
+  route: SharedRouteWithOptional<U, Body, Query, Output>,
+): SharedRoute<U, Body, Query, Output> => ({
   bodySchema: z.object({}).strict() as any,
   querySchema: z.object({}).strict() as any,
   outputSchema: z.void() as any,
   ...route,
 });
 
-export type DefineRoutesOptions = {
-  pathPrefix: string;
-};
-
-export const defineRoutes = <T extends Record<string, unknown>>(
-  routes: {
-    [K in keyof T]: T[K];
-  },
-  routeOptions: DefineRoutesOptions = { pathPrefix: "/" },
-) => {
+const verifyRoutesUniqAndListRoutes = <
+  T extends Record<string, UnknownSharedRoute>,
+>(routes: {
+  [K in keyof T]: T[K];
+}): string[] => {
   const occurrencesByPathAndVerb: Record<string, number> = {};
 
-  for (const route of Object.values(routes)) {
-    const name = `${route.verb.toUpperCase()} ${
-      routeOptions.pathPrefix === "/" ? "" : routeOptions.pathPrefix
-    }${route.path.toLowerCase()}`;
+  for (const route of Object.values(routes) as UnknownSharedRoute[]) {
+    const name = `${route.verb.toUpperCase()} ${route.url.toLowerCase()}`;
     const occurrence = (occurrencesByPathAndVerb[name] ?? 0) + 1;
     if (occurrence > 1)
       throw new Error(
@@ -62,50 +55,14 @@ export const defineRoutes = <T extends Record<string, unknown>>(
       );
     occurrencesByPathAndVerb[name] = occurrence;
   }
-
-  const listRoutes = () => Object.keys(occurrencesByPathAndVerb);
-
-  return { routes, routeOptions, listRoutes };
+  return Object.keys(occurrencesByPathAndVerb);
 };
 
-export const definePrefixedRoute = <T extends Record<string, unknown>>(
-  pathPrefix: string,
-  routeDefinitions: { [K in keyof T]: T[K] },
-) => defineRoutes(routeDefinitions, { pathPrefix });
-
-export const combineRouters = <
-  T extends Record<
-    string,
-    Record<string, SharedRoute<string, unknown, unknown, unknown>>
-  >,
-  Routers extends {
-    [RouterName in keyof T]: {
-      [RouteLabel in keyof T[RouterName]]: T[RouterName][RouteLabel];
-    };
-  },
->(
-  sharedRouters: Routers,
-): { sharedRouters: Routers; listRoutes: () => string[] } => {
-  const occurrencesByPathAndVerb: Record<string, number> = {};
-
-  for (const routerName of Object.keys(sharedRouters)) {
-    const sharedRouter = sharedRouters[routerName];
-    for (const sharedRoute of Object.values(sharedRouter)) {
-      const name = `${(
-        sharedRoute as SharedRoute<any, any, any, any>
-      ).verb.toUpperCase()} /${[
-        routerName.toLowerCase(),
-        ...(sharedRoute.path ? [sharedRoute.path.toLowerCase()] : []),
-      ].join("/")}`;
-      const occurrence = (occurrencesByPathAndVerb[name] ?? 0) + 1;
-      if (occurrence > 1)
-        throw new Error(
-          `You cannot have several routes with same verb and path, got: ${name} twice (at least)`,
-        );
-      occurrencesByPathAndVerb[name] = occurrence;
-    }
-  }
-
-  const listRoutes = () => Object.keys(occurrencesByPathAndVerb);
-  return { sharedRouters: sharedRouters, listRoutes };
+export const defineRoutes = <
+  T extends Record<string, UnknownSharedRoute>,
+>(routes: {
+  [K in keyof T]: T[K];
+}) => {
+  const routeList = verifyRoutesUniqAndListRoutes(routes);
+  return { routes, listRoutes: () => routeList };
 };

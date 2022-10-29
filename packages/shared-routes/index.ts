@@ -1,9 +1,8 @@
-export {
-  combineRouters,
-  defineRoutes,
-  defineRoute,
-  definePrefixedRoute,
+export { defineRoutes, defineRoute } from "./src/defineRoute";
+export type {
+  HttpMethod,
+  SharedRoute,
+  UnknownSharedRoute,
 } from "./src/defineRoute";
-export type { SharedRoute, DefineRoutesOptions } from "./src/defineRoute";
-export type { PathParameters } from "./src/pathParameters";
+export type { PathParameters, Url } from "./src/pathParameters";
 export { replacePathWithParams } from "./src/pathParameters";
