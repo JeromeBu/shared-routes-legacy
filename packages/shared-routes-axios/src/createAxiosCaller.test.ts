@@ -25,9 +25,7 @@ describe("createAxiosSharedCaller", () => {
       }),
     });
 
-    const axiosSharedCaller = createAxiosSharedCaller(routes, axios, {
-      proxyPrefix: "/api",
-    });
+    const axiosSharedCaller = createAxiosSharedCaller(routes, axios);
 
     expect(listRoutes()).toEqual([
       "POST /books",
@@ -56,5 +54,40 @@ describe("createAxiosSharedCaller", () => {
       });
       getByTitleResponse.data; // type is Book[], as expected
     };
+  });
+
+  it("actually calls a placeholder endpoint", async () => {
+    // WARNING : This test uses an actual placeholder api (which might be down...)
+    const todoSchema = z.object({
+      userId: z.number(),
+      id: z.number(),
+      title: z.string(),
+      completed: z.boolean(),
+    });
+
+    const { routes, listRoutes } = defineRoutes({
+      getByTodoById: defineRoute({
+        method: "get",
+        url: "https://jsonplaceholder.typicode.com/todos/:todoId",
+        outputSchema: todoSchema,
+      }),
+    });
+
+    expect(listRoutes()).toEqual([
+      "GET https://jsonplaceholder.typicode.com/todos/:todoid",
+    ]);
+
+    const axiosCaller = createAxiosSharedCaller(routes, axios);
+    const response = await axiosCaller.getByTodoById({
+      params: { todoId: "3" },
+    });
+    const expectedBody: z.infer<typeof todoSchema> = {
+      id: 3,
+      userId: 1,
+      completed: false,
+      title: "fugiat veniam minus",
+    };
+    expect(response.data).toEqual(expectedBody);
+    expect(response.status).toBe(200);
   });
 });

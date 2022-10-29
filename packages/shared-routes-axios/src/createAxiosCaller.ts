@@ -6,10 +6,6 @@ import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 type GetKeys = <Obj extends Record<string, unknown>>(obj: Obj) => (keyof Obj)[];
 const keys: GetKeys = (obj) => Object.keys(obj);
 
-export type AxiosSharedRoutesOptions = {
-  proxyPrefix: string; // for usage with a proxy for exemple
-};
-
 const applyMethodAndUrl = (axios: AxiosInstance, route: UnknownSharedRoute) => {
   return ({ params, query, body, headers }: any) =>
     axios.request({
@@ -29,7 +25,6 @@ export const createAxiosSharedCaller = <
 >(
   sharedRouters: SharedRoutes,
   axios: AxiosInstance,
-  options?: AxiosSharedRoutesOptions,
 ): {
   [RouteName in keyof SharedRoutes]: (
     // prettier-ignore
