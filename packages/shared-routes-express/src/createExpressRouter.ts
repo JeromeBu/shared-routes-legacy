@@ -1,7 +1,5 @@
 import type { IRoute, RequestHandler, Router } from "express";
-import type { PathParameters, SharedRoute } from "shared-routes";
-import { UnknownSharedRoute } from "shared-routes/src/defineRoute";
-import { Url } from "shared-routes/src/pathParameters";
+import type { PathParameters, UnknownSharedRoute } from "shared-routes";
 import { z, ZodError } from "zod";
 
 type ExpressSharedRouteOptions = {
@@ -60,7 +58,7 @@ export const createExpressSharedRouter = <
     [Route in keyof SharedRoutes]: (
       ...handlers: RequestHandler<
         PathParameters<SharedRoutes[Route]["url"]>,
-        z.infer<SharedRoutes[Route]["outputSchema"]>,
+        z.infer<SharedRoutes[Route]["responseBodySchema"]>,
         z.infer<SharedRoutes[Route]["bodySchema"]>,
         z.infer<SharedRoutes[Route]["queryParamsSchema"]>,
         any

@@ -38,8 +38,7 @@ const bookSchema: z.Schema<Book> = z.object({
   author: z.string(),
 });
 
-export const { sharedRouters, listRoutes } = combineRouters({
-  books: {
+export const { sharedRouters, listRoutes } = defineRoutes({
     addBook: defineRoute({
       verb: "post",
       path: "",
@@ -48,15 +47,15 @@ export const { sharedRouters, listRoutes } = combineRouters({
     getAllBooks: defineRoute({
       verb: "get",
       path: "",
-      querySchema: z.object({ max: z.number() }),
-      outputSchema: z.array(bookSchema),
+      queryParamsSchema: z.object({ max: z.number() }),
+      responseBodySchema: z.array(bookSchema),
     }),
     getBookByTitle: defineRoute({
       verb: "get",
       path: `:title`,
-      outputSchema: z.union([bookSchema, z.undefined()]),
+      responseBodySchema: z.union([bookSchema, z.undefined()]),
+      headers: z.object({authorization: z.string()}),
     }),
-  }
 });
 ```
 
@@ -151,18 +150,23 @@ const supertestSharedCaller = createSupertestSharedCaller(
 );
 
 const heyBook: Book = { title: "Hey", author: "Steeve" };
-const addBookResponse = await supertestSharedCaller.books.addBook({
+const addBookResponse = await supertestSharedCaller.addBook({
   body: heyBook,
   headers: { authorization: fakeAuthToken },
 });
 expect(addBookResponse.status).toBe(200);
 
-const getAllBooksResponse = await supertestSharedCaller.books.getAllBooks({
-  query: { max: 5 },
+const getAllBooksResponse = await supertestSharedCaller.getAllBooks({
+  queryParams: { max: 5 },
 });
 expect(getAllBooksResponse.status).toBe(200);
 // getAllBooksResponse.body is of type Book[]
 expectToEqual(getAllBooksResponse.body, [heyBook]);
+
+const bookResponse = await supertestSharedCaller.getBookByTitle({
+  params: {title: "My title"},
+  headers: {authorization: "my-token"}
+})
 ```
 
 You can see the express app and the supertest exemple tested in this file :
@@ -180,7 +184,7 @@ const axiosSharedCaller = createAxiosSharedCaller(sharedRouters, axios, {
 });
 
 const getAllBooksResponse = await axiosSharedCaller.getAllBooks({
-  query: { max: 3 },
+  queryParams: { max: 3 },
 });
 // getAllBooksResponse.data is of type Book[]
 

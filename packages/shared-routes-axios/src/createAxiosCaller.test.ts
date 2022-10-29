@@ -6,18 +6,20 @@ import { createAxiosSharedCaller } from "./createAxiosCaller";
 describe("createAxiosSharedCaller", () => {
   it("create a caller from axios and sharedRoutes object", async () => {
     const bookSchema = z.object({ title: z.string(), author: z.string() });
+    const withAuthorizationSchema = z.object({ authorization: z.string() });
 
     const { routes, listRoutes } = defineRoutes({
       addBook: defineRoute({
         method: "post",
         url: "/books",
         bodySchema: bookSchema,
+        headersSchema: withAuthorizationSchema,
       }),
       getAllBooks: defineRoute({
         method: "get",
         url: "/books",
         queryParamsSchema: z.object({ max: z.number() }),
-        outputSchema: z.array(bookSchema),
+        responseBodySchema: z.array(bookSchema),
       }),
       getByTitle: defineRoute({
         method: "get",
@@ -36,16 +38,14 @@ describe("createAxiosSharedCaller", () => {
     // the code below will not past test as no server is receiving the calls,
     // but it is to show check that typing works fine.
     const notExecuted = async () => {
-      const addBookResponse = await axiosSharedCaller.addBook(
-        {
-          body: { title: "lala", author: "bob" },
-        },
-        { headers: { authorization: "some-token" } },
-      );
+      const addBookResponse = await axiosSharedCaller.addBook({
+        body: { title: "lala", author: "bob" },
+        headers: { authorization: "some-token" },
+      });
       addBookResponse.data; // type is void, as expected
 
       const getAllBooksResponse = await axiosSharedCaller.getAllBooks({
-        query: { max: 3 },
+        queryParams: { max: 3 },
       });
       getAllBooksResponse.data; // type is Book[], as expected
 
@@ -69,7 +69,7 @@ describe("createAxiosSharedCaller", () => {
       getByTodoById: defineRoute({
         method: "get",
         url: "https://jsonplaceholder.typicode.com/todos/:todoId",
-        outputSchema: todoSchema,
+        responseBodySchema: todoSchema,
       }),
     });
 

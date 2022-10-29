@@ -18,31 +18,25 @@ const bookSchema: z.Schema<Book> = z.object({
   author: z.string(),
 });
 
-const { routes: taskRoutes, listRoutes: listTaskRoutes } = defineRoutes({
-  getAllTasks: defineRoute({
-    method: "get",
-    url: "/tasks",
-    queryParamsSchema: z.object({ max: zNumberFromString }),
-    outputSchema: z.array(z.object({ taskName: z.string() })),
-  }),
-});
+const withAuthorizationSchema = z.object({ authorization: z.string() });
 
 const { routes, listRoutes } = defineRoutes({
   addBook: defineRoute({
     method: "post",
     url: "/books",
     bodySchema: bookSchema,
+    headersSchema: withAuthorizationSchema,
   }),
   getAllBooks: defineRoute({
     method: "get",
     url: "/books",
     queryParamsSchema: z.object({ max: zNumberFromString }),
-    outputSchema: z.array(bookSchema),
+    responseBodySchema: z.array(bookSchema),
   }),
   getBookByTitle: defineRoute({
     method: "get",
     url: "/books/:title",
-    outputSchema: z.union([bookSchema, z.undefined()]),
+    responseBodySchema: z.union([bookSchema, z.undefined()]),
   }),
 });
 
@@ -103,6 +97,7 @@ describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
     const heyBook: Book = { title: "Hey", author: "Steeve" };
     const addBookResponse = await supertestSharedCaller.addBook({
       body: heyBook,
+      headers: { authorization: "not-the-right-token" },
     });
     expect(listRoutes()).toEqual([
       "POST /books",
@@ -111,7 +106,7 @@ describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
     ]);
 
     console.log("STATUS : ", addBookResponse.status);
-    console.log("BODY : ", addBookResponse.body);
+    console.log("BODY of addBookResponse : ", addBookResponse.body);
     expect(addBookResponse.body).toEqual(""); // type is void, but express sends "";
     expect(addBookResponse.status).toBe(401);
   });
