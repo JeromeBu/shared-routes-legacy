@@ -9,10 +9,10 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "test": "jest",
-    "build": "rm -rf ./dist && tsc -p tsconfig.build.json",
+    "build": "rm -rf ./lib && tsc -p tsconfig.cjs.json",
     "format": "pnpm -w format-cmd --write ./packages/shared-routes-axios/src/",
     "lint": "eslint src --fix",
-    "watch": "tsc -p tsconfig.build.json --watch",
+    "watch": "tsc -p tsconfig.cjs.json --watch",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

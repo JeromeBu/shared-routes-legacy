@@ -1,5 +1,5 @@
 import { defineRoute, defineRoutes } from "shared-routes";
-import { createExpressSharedRouter } from "shared-routes-express";
+import { createExpressSharedRouter } from "shared-routes-express/src";
 import { z } from "zod";
 import { createSupertestSharedClient } from "./createSupertestSharedClient";
 import supertest from "supertest";

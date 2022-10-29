@@ -1,15 +1,14 @@
 {
   "name": "shared-routes-express",
-  "type": "module",
   "publishConfig": {
     "access": "public"
   },
   "version": "0.4.0",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
   "scripts": {
-    "build": "rm -rf ./dist && tsc -p tsconfig.build.json",
-    "watch": "tsc -p tsconfig.build.json --watch",
+    "build": "rm -rf ./dist && tsc -p tsconfig.cjs.json",
+    "watch": "tsc -p tsconfig.cjs.json --watch",
     "format": "pnpm -w format-cmd --write ./packages/shared-routes-express/src/",
     "lint": "eslint src --fix",
     "typecheck": "tsc --noEmit"

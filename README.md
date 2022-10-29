@@ -79,10 +79,10 @@ You can decide for each server / consumer if you want the actual validation to b
 Here is an example of usage with express, using the previously defined `mySharedRoutes`:
 
 ```typescript
-import express, { Router as ExpressRouter } from "express";
+import express, {Router as ExpressRouter} from "express";
 import bodyParser from "body-parser";
-import { createExpressSharedRouter } from "shared-routes-express";
-import { sharedRouters } from "path/to/where/sharedRouters/are/defined"
+import {createExpressSharedRouter} from "packages/shared-routes-express/src/index";
+import {sharedRouters} from "path/to/where/sharedRouters/are/defined"
 
 const fakeAuthToken = "my-token";
 
@@ -92,10 +92,10 @@ const createBookRouter = (): PathAndExpressRouter => {
   const bookDB: Book[] = [];
   const expressRouter = ExpressRouter();
 
-  const { expressSharedRouter, pathPrefix } = createExpressSharedRouter(
-    { sharedRouters, routerName: "books" },
+  const {expressSharedRouter, pathPrefix} = createExpressSharedRouter(
+    {sharedRouters, routerName: "books"},
     expressRouter,
-    { skipQueryValidation: true, skipBodyValidation: false },
+    {skipQueryValidation: true, skipBodyValidation: false},
   );
 
   expressSharedRouter.getAllBooks((req, res) => {
@@ -122,9 +122,9 @@ const createBookRouter = (): PathAndExpressRouter => {
 const createExempleApp = () => {
   const app = express();
   app.use(bodyParser.json());
-  
+
   app.use(...createBookRouter());
-  
+
   return app;
 };
 
