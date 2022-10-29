@@ -20,7 +20,7 @@ const bookSchema: z.Schema<Book> = z.object({
 
 const { routes: taskRoutes, listRoutes: listTaskRoutes } = defineRoutes({
   getAllTasks: defineRoute({
-    verb: "get",
+    method: "get",
     url: "/tasks",
     querySchema: z.object({ max: zNumberFromString }),
     outputSchema: z.array(z.object({ taskName: z.string() })),
@@ -29,18 +29,18 @@ const { routes: taskRoutes, listRoutes: listTaskRoutes } = defineRoutes({
 
 const { routes, listRoutes } = defineRoutes({
   addBook: defineRoute({
-    verb: "post",
+    method: "post",
     url: "/books",
     bodySchema: bookSchema,
   }),
   getAllBooks: defineRoute({
-    verb: "get",
+    method: "get",
     url: "/books",
     querySchema: z.object({ max: zNumberFromString }),
     outputSchema: z.array(bookSchema),
   }),
   getBookByTitle: defineRoute({
-    verb: "get",
+    method: "get",
     url: "/books/:title",
     outputSchema: z.union([bookSchema, z.undefined()]),
   }),

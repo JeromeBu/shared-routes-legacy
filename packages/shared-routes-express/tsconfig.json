@@ -2,7 +2,7 @@
   "extends": "tsconfig/base.json",
   "compilerOptions": {
     "paths": {
-      "shared": ["../shared-routes/index.ts"]
+      "shared-routes": ["../shared-routes/index.ts"]
     }
   },
   "include": ["."],

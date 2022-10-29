@@ -10,10 +10,10 @@ export type AxiosSharedRoutesOptions = {
   proxyPrefix: string; // for usage with a proxy for exemple
 };
 
-const applyVerbAndPath = (axios: AxiosInstance, route: UnknownSharedRoute) => {
+const applyMethodAndUrl = (axios: AxiosInstance, route: UnknownSharedRoute) => {
   return ({ params, query, body, headers }: any) =>
     axios.request({
-      method: route.verb,
+      method: route.method,
       url: replacePathWithParams(route.url, params),
       data: body,
       params: query,
@@ -46,7 +46,7 @@ export const createAxiosSharedCaller = <
 
   keys(sharedRouters).forEach((route) => {
     const sharedRoute = sharedRouters[route];
-    objectOfHandlers[route] = applyVerbAndPath(axios, sharedRoute);
+    objectOfHandlers[route] = applyMethodAndUrl(axios, sharedRoute);
   });
 
   return objectOfHandlers as any;
