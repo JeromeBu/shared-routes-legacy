@@ -3,8 +3,8 @@ import type { SharedRoute, DefineRoutesOptions } from "shared-routes";
 import { z } from "zod";
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 
-const keys = <Obj extends Record<string, unknown>>(obj: Obj): (keyof Obj)[] =>
-  Object.keys(obj) as (keyof Obj)[];
+type GetKeys = <Obj extends Record<string, unknown>>(obj: Obj) => (keyof Obj)[];
+const keys: GetKeys = (obj) => Object.keys(obj);
 
 export type AxiosSharedRoutesOptions = {
   proxyPrefix: string; // for usage with a proxy for exemple

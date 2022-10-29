@@ -1,6 +1,6 @@
 // mostly from https://github.com/DefinitelyTyped/DefinitelyTyped/blob/ef87ee53bc501c0f0e79797add156fd8fa904ede/types/express-serve-static-core/index.d.ts#L98-L121
 
-export interface ParamsDictionary {
+interface ParamsDictionary {
   [key: string]: string;
 }
 
