@@ -5,14 +5,14 @@
     "access": "public"
   },
   "version": "0.4.0",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
   "scripts": {
     "test": "jest",
-    "build": "rm -rf ./dist && tsc -p tsconfig.build.json",
+    "build": "rm -rf ./lib && tsc -p tsconfig.cjs.json",
     "format": "pnpm -w format-cmd --write ./packages/shared-routes-supertest/src/",
     "lint": "eslint src --fix",
-    "watch": "tsc -p tsconfig.build.json --watch",
+    "watch": "tsc -p tsconfig.cjs.json --watch",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

@@ -2,6 +2,7 @@
   "name": "shared-routes-turbo",
   "version": "0.0.0",
   "private": true,
+  "repository": "https://github.com/JeromeBu/shared-routes",
   "workspaces": [
     "apps/*",
     "packages/*"

@@ -6,8 +6,6 @@
     "lib": ["esnext"],
     "moduleResolution": "node",
     "composite": false,
-    "declaration": true,
-    "declarationMap": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "inlineSources": false,
