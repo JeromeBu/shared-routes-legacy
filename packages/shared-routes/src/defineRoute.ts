@@ -8,8 +8,8 @@ type OptionalFields<Body, Query, Output> = {
 };
 
 export type HttpMethod = "get" | "post" | "put" | "patch" | "delete";
-type VerbAndPath<U extends Url> = {
-  verb: HttpMethod;
+type MethodAndUrl<U extends Url> = {
+  method: HttpMethod;
   url: U;
 };
 
@@ -18,9 +18,9 @@ type SharedRouteWithOptional<
   Body,
   Query,
   Output,
-> = VerbAndPath<U> & OptionalFields<Body, Query, Output>;
+> = MethodAndUrl<U> & OptionalFields<Body, Query, Output>;
 
-export type SharedRoute<U extends Url, Body, Query, Output> = VerbAndPath<U> &
+export type SharedRoute<U extends Url, Body, Query, Output> = MethodAndUrl<U> &
   Required<OptionalFields<Body, Query, Output>>;
 
 export type UnknownSharedRoute = SharedRoute<Url, unknown, unknown, unknown>;
@@ -44,18 +44,18 @@ const verifyRoutesUniqAndListRoutes = <
 >(routes: {
   [K in keyof T]: T[K];
 }): string[] => {
-  const occurrencesByPathAndVerb: Record<string, number> = {};
+  const occurrencesByMethodAndUrl: Record<string, number> = {};
 
   for (const route of Object.values(routes) as UnknownSharedRoute[]) {
-    const name = `${route.verb.toUpperCase()} ${route.url.toLowerCase()}`;
-    const occurrence = (occurrencesByPathAndVerb[name] ?? 0) + 1;
+    const name = `${route.method.toUpperCase()} ${route.url.toLowerCase()}`;
+    const occurrence = (occurrencesByMethodAndUrl[name] ?? 0) + 1;
     if (occurrence > 1)
       throw new Error(
-        `You cannot have several routes with same verb and path, got: ${name} twice (at least)`,
+        `You cannot have several routes with same http method and url, got: ${name} twice (at least)`,
       );
-    occurrencesByPathAndVerb[name] = occurrence;
+    occurrencesByMethodAndUrl[name] = occurrence;
   }
-  return Object.keys(occurrencesByPathAndVerb);
+  return Object.keys(occurrencesByMethodAndUrl);
 };
 
 export const defineRoutes = <

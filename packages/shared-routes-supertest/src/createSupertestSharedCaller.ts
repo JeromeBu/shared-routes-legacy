@@ -17,12 +17,12 @@ const supertestRequestToCorrectHttpMethod = (
   return supertestRequest[method];
 };
 
-const applyVerbAndPath =
+const applyMethodAndUrl =
   (supertestRequest: SuperTest<Test>, route: UnknownSharedRoute) =>
   ({ params = {}, body, query, headers }: any) =>
     supertestRequestToCorrectHttpMethod(
       supertestRequest,
-      route.verb,
+      route.method,
     )(replacePathWithParams(route.url, params))
       .send(body)
       .set(headers ?? {})
@@ -59,7 +59,7 @@ export const createSupertestSharedCaller = <
 
   keys(sharedRoutes).forEach((route) => {
     const sharedRoute = sharedRoutes[route];
-    objectOfHandlers[route] = applyVerbAndPath(supertestRequest, sharedRoute);
+    objectOfHandlers[route] = applyMethodAndUrl(supertestRequest, sharedRoute);
   });
 
   return objectOfHandlers;

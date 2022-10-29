@@ -9,18 +9,18 @@ describe("createAxiosSharedCaller", () => {
 
     const { routes, listRoutes } = defineRoutes({
       addBook: defineRoute({
-        verb: "post",
+        method: "post",
         url: "/books",
         bodySchema: bookSchema,
       }),
       getAllBooks: defineRoute({
-        verb: "get",
+        method: "get",
         url: "/books",
         querySchema: z.object({ max: z.number() }),
         outputSchema: z.array(bookSchema),
       }),
       getByTitle: defineRoute({
-        verb: "get",
+        method: "get",
         url: "/books/:title",
       }),
     });

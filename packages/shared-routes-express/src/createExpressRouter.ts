@@ -46,7 +46,7 @@ const assignHandlersToExpressRouter = (
   const url = route.url as string;
 
   return (...handlers: RequestHandler[]) =>
-    expressRouter.route(url)[route.verb](validationMiddleware, handlers);
+    expressRouter.route(url)[route.method](validationMiddleware, handlers);
 };
 
 export const createExpressSharedRouter = <
