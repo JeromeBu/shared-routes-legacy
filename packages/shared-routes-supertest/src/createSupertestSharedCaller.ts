@@ -1,14 +1,8 @@
-import { PathParameters, replacePathWithParams } from "shared-routes";
+import { PathParameters, replaceParamsInUrl, keys } from "shared-routes";
 import type { UnknownSharedRoute, HttpMethod, Url } from "shared-routes";
 
 import type { SuperTest, Test, Response } from "supertest";
 import { z } from "zod";
-import express from "express";
-
-express();
-
-const keys = <Obj extends Record<string, unknown>>(obj: Obj): (keyof Obj)[] =>
-  Object.keys(obj) as (keyof Obj)[];
 
 const supertestRequestToCorrectHttpMethod = (
   supertestRequest: SuperTest<Test>,
@@ -23,7 +17,7 @@ const applyMethodAndUrl =
     supertestRequestToCorrectHttpMethod(
       supertestRequest,
       route.method,
-    )(replacePathWithParams(route.url, params))
+    )(replaceParamsInUrl(route.url, params))
       .send(body)
       .set(headers ?? {})
       .query(queryParams);
