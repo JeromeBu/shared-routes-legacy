@@ -3,11 +3,11 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "0.5.0",
+  "version": "0.5.1",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "scripts": {
-    "build": "rm -rf ./dist && tsc -p tsconfig.cjs.json",
+    "build": "rm -rf ./lib && tsc -p tsconfig.cjs.json",
     "watch": "tsc -p tsconfig.cjs.json --watch",
     "format": "pnpm -w format-cmd --write ./packages/shared-routes-express/src/",
     "lint": "eslint src --fix",

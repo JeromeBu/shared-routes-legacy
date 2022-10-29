@@ -1,5 +1,11 @@
 # shared-routes-axios
 
+## 0.5.1
+
+### Patch Changes
+
+- fix axios lib export
+
 ## 0.5.0
 
 ### Minor Changes
