@@ -49,7 +49,6 @@ const createBookRouter = (): ExpressRouter => {
   const { expressSharedRouter } = createExpressSharedRouter(
     routes,
     expressRouter,
-    { skipQueryValidation: false },
   );
 
   expressSharedRouter.getAllBooks((req, res) => {

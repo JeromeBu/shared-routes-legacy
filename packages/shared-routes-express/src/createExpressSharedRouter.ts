@@ -3,23 +3,21 @@ import type { PathParameters, UnknownSharedRoute } from "shared-routes";
 import { keys } from "shared-routes";
 import { z, ZodError } from "zod";
 
-type ExpressSharedRouteOptions = {
-  skipBodyValidation?: boolean;
-  skipQueryValidation?: boolean;
+type ExpressSharedRouterOptions = {
+  skipRequestValidation?: boolean;
 };
 
 const makeValidationMiddleware =
   (
     route: UnknownSharedRoute,
-    options: ExpressSharedRouteOptions,
+    options: ExpressSharedRouterOptions,
   ): RequestHandler =>
   (req, res, next) => {
     try {
-      if (!options.skipBodyValidation) {
+      if (!options.skipRequestValidation) {
         req.body = route.bodySchema.parse(req.body) as any;
-      }
-      if (!options.skipQueryValidation) {
         req.query = route.queryParamsSchema.parse(req.query) as any;
+        route.headersSchema.parse(req.headers); // we don't want to re-affect req.headers parsed value because we don't want to lose all other headers
       }
       next();
     } catch (e) {
@@ -36,7 +34,7 @@ const makeValidationMiddleware =
 const assignHandlersToExpressRouter = (
   expressRouter: Router,
   route: UnknownSharedRoute,
-  options: ExpressSharedRouteOptions,
+  options: ExpressSharedRouterOptions = {},
 ): ((...handlers: RequestHandler[]) => IRoute) => {
   const validationMiddleware = makeValidationMiddleware(route, options);
   const url = route.url as string;
@@ -47,12 +45,7 @@ const assignHandlersToExpressRouter = (
 
 export const createExpressSharedRouter = <
   SharedRoutes extends Record<string, UnknownSharedRoute>,
->(
-  sharedRoutes: SharedRoutes,
-  expressRouter: Router,
-  options?: ExpressSharedRouteOptions,
-): {
-  expressSharedRouter: {
+  ExpressSharedRouter extends {
     [Route in keyof SharedRoutes]: (
       ...handlers: RequestHandler<
         PathParameters<SharedRoutes[Route]["url"]>,
@@ -62,27 +55,23 @@ export const createExpressSharedRouter = <
         any
       >[]
     ) => IRoute;
-  };
+  },
+>(
+  sharedRoutes: SharedRoutes,
+  expressRouter: Router,
+  options?: ExpressSharedRouterOptions,
+): {
+  expressSharedRouter: ExpressSharedRouter;
 } => {
-  const objectOfHandlers = {} as Record<
-    keyof SharedRoutes,
-    (...handlers: RequestHandler[]) => IRoute
-  >;
-
-  keys(sharedRoutes).forEach((routeName) => {
-    const sharedRoute = sharedRoutes[routeName];
-    objectOfHandlers[routeName] = assignHandlersToExpressRouter(
-      expressRouter,
-      sharedRoute,
-      {
-        skipQueryValidation: false,
-        skipBodyValidation: false,
-        ...options,
-      },
-    );
-  });
+  const expressSharedRouter = keys(sharedRoutes).reduce((acc, routeName) => {
+    const route = sharedRoutes[routeName];
+    return {
+      ...acc,
+      [routeName]: assignHandlersToExpressRouter(expressRouter, route, options),
+    };
+  }, {} as ExpressSharedRouter);
 
   return {
-    expressSharedRouter: objectOfHandlers as any,
+    expressSharedRouter,
   };
 };
