@@ -4,6 +4,7 @@
   "compilerOptions": {
     "target": "ES2015",
     "lib": ["esnext"],
+    "moduleResolution": "node",
     "composite": false,
     "declaration": true,
     "declarationMap": true,
@@ -11,9 +12,7 @@
     "forceConsistentCasingInFileNames": true,
     "inlineSources": false,
     "isolatedModules": true,
-    "moduleResolution": "node",
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
+    "noImplicitOverride": true,
     "preserveWatchOutput": true,
     "skipLibCheck": true,
     "strict": true
