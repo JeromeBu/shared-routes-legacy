@@ -30,7 +30,7 @@ export const createAxiosSharedCaller = <
     // prettier-ignore
     params: (PathParameters<SharedRoutes[RouteName]["url"]> extends EmptyObj ? AnyObj : {params: PathParameters<SharedRoutes[RouteName]["url"]>})
         & (z.infer<SharedRoutes[RouteName]["bodySchema"]> extends void ? AnyObj : { body: z.infer<SharedRoutes[RouteName]["bodySchema"]> })
-        & (z.infer<SharedRoutes[RouteName]["querySchema"]> extends void ? AnyObj : { query: z.infer<SharedRoutes[RouteName]["querySchema"]> }),
+        & (z.infer<SharedRoutes[RouteName]["queryParamsSchema"]> extends void ? AnyObj : { query: z.infer<SharedRoutes[RouteName]["queryParamsSchema"]> }),
     config?: AxiosRequestConfig,
   ) => Promise<AxiosResponse<z.infer<SharedRoutes[RouteName]["outputSchema"]>>>;
 } => {

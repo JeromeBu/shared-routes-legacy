@@ -37,7 +37,7 @@ describe("Shared routes definitions", () => {
         getAllBooks: defineRoute({
           method: "get",
           url: "/books",
-          querySchema: z.object({ lala: z.string() }),
+          queryParamsSchema: z.object({ lala: z.string() }),
           outputSchema: z.array(z.object({ id: z.string(), name: z.string() })),
         }),
       });

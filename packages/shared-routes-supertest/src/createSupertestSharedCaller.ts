@@ -19,14 +19,14 @@ const supertestRequestToCorrectHttpMethod = (
 
 const applyMethodAndUrl =
   (supertestRequest: SuperTest<Test>, route: UnknownSharedRoute) =>
-  ({ params = {}, body, query, headers }: any) =>
+  ({ params = {}, body, queryParams, headers }: any) =>
     supertestRequestToCorrectHttpMethod(
       supertestRequest,
       route.method,
     )(replacePathWithParams(route.url, params))
       .send(body)
       .set(headers ?? {})
-      .query(query);
+      .query(queryParams);
 
 type SupertestResponseWithOutput<Output> = Omit<Response, "body"> & {
   body: Output;
@@ -46,7 +46,7 @@ export const createSupertestSharedCaller = <
     params: ({ headers?: Record<string, string> })
         & (PathParameters<SharedRoutes[RouteName]["url"]> extends EmptyObj ? AnyObj : { params: PathParameters<SharedRoutes[RouteName]["url"]> })
         & (z.infer<SharedRoutes[RouteName]["bodySchema"]> extends void ? AnyObj : { body: z.infer<SharedRoutes[RouteName]["bodySchema"]> })
-        & (z.infer<SharedRoutes[RouteName]["querySchema"]> extends void ? AnyObj : { query: z.infer<SharedRoutes[RouteName]["querySchema"]> }),
+        & (z.infer<SharedRoutes[RouteName]["queryParamsSchema"]> extends void ? AnyObj : { queryParams: z.infer<SharedRoutes[RouteName]["queryParamsSchema"]> }),
   ) => Promise<
     SupertestResponseWithOutput<
       z.infer<SharedRoutes[RouteName]["outputSchema"]>

@@ -22,7 +22,7 @@ const { routes: taskRoutes, listRoutes: listTaskRoutes } = defineRoutes({
   getAllTasks: defineRoute({
     method: "get",
     url: "/tasks",
-    querySchema: z.object({ max: zNumberFromString }),
+    queryParamsSchema: z.object({ max: zNumberFromString }),
     outputSchema: z.array(z.object({ taskName: z.string() })),
   }),
 });
@@ -36,7 +36,7 @@ const { routes, listRoutes } = defineRoutes({
   getAllBooks: defineRoute({
     method: "get",
     url: "/books",
-    querySchema: z.object({ max: zNumberFromString }),
+    queryParamsSchema: z.object({ max: zNumberFromString }),
     outputSchema: z.array(bookSchema),
   }),
   getBookByTitle: defineRoute({
@@ -125,7 +125,7 @@ describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
     );
 
     const getAllBooksResponse = await supertestSharedCaller.getAllBooks({
-      query: { max: "yolo" as any },
+      queryParams: { max: "yolo" as any },
     });
     expect(getAllBooksResponse.body).toEqual([
       "max : Expected number, received string",
@@ -157,7 +157,7 @@ describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
     });
 
     const getAllBooksResponse = await supertestSharedCaller.getAllBooks({
-      query: { max: 5 },
+      queryParams: { max: 5 },
     });
     expectToEqual(getAllBooksResponse.body, [heyBook, otherBook]);
     expect(getAllBooksResponse.status).toBe(200);
