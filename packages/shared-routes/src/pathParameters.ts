@@ -1,3 +1,8 @@
+type Http = "http://" | "https://";
+type AbsoluteUrl = `${Http}${string}`;
+type RelativeUrl = `/${string}`;
+export type Url = AbsoluteUrl | RelativeUrl;
+
 // mostly from https://github.com/DefinitelyTyped/DefinitelyTyped/blob/ef87ee53bc501c0f0e79797add156fd8fa904ede/types/express-serve-static-core/index.d.ts#L98-L121
 
 interface ParamsDictionary {
@@ -30,10 +35,10 @@ export type PathParameters<Route extends string> = string extends Route
 const keys = <Obj extends Record<string, unknown>>(obj: Obj): (keyof Obj)[] =>
   Object.keys(obj) as (keyof Obj)[];
 
-export const replacePathWithParams = <Path extends string>(
-  path: Path,
-  params: PathParameters<Path>,
-): string => {
+export const replacePathWithParams = <U extends Url>(
+  path: U,
+  params: PathParameters<U>,
+): Url => {
   const paramNames = keys(params);
   if (paramNames.length === 0) return path;
   return paramNames.reduce((acc, paramName) => {
