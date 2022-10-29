@@ -10,6 +10,13 @@ interface ParamsDictionary {
 }
 
 // prettier-ignore
+type RemoveDomain<S extends string> = S extends RelativeUrl
+  ? S
+  : S extends `${Http}${string}${"/"}${infer P}`
+    ? `/${P}`
+    : "/";
+
+// prettier-ignore
 type RemoveTail<S extends string, Tail extends string> = S extends `${infer P}${Tail}` ? P : S;
 
 type GetRouteParameter<S extends string> = RemoveTail<
@@ -20,7 +27,7 @@ type GetRouteParameter<S extends string> = RemoveTail<
 // prettier-ignore
 export type PathParameters<Route extends string> = string extends Route
   ? ParamsDictionary
-  : Route extends `${string}:${infer Rest}`
+  : RemoveDomain<Route> extends `${string}:${infer Rest}`
     ? (
       GetRouteParameter<Rest> extends never
         ? ParamsDictionary
