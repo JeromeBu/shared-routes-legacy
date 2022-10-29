@@ -51,7 +51,7 @@ export const defineRoute = <
   bodySchema: z.object({}).strict() as any,
   queryParamsSchema: z.object({}).strict() as any,
   responseBodySchema: z.void() as any,
-  headersSchema: z.void() as any,
+  headersSchema: z.object({}) as any,
   ...route,
 });
 
