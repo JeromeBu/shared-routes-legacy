@@ -170,7 +170,7 @@ const bookResponse = await supertestSharedCaller.getBookByTitle({
 ```
 
 You can see the express app and the supertest exemple tested in this file :
-[createSupertestSharedCaller.test.ts](https://github.com/JeromeBu/shared-routes/blob/main/packages/shared-routes-supertest/src/createSupertestSharedCaller.test.ts)
+[createSupertestSharedClient.test.ts](https://github.com/JeromeBu/shared-routes/blob/main/packages/shared-routes-supertest/src/createSupertestSharedCaller.test.ts)
 
 ## Usage with axios
 

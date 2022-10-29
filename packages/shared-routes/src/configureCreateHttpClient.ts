@@ -36,7 +36,7 @@ type HandlerParams = {
   headers?: any;
 };
 
-type Handler = (params?: HandlerParams) => Promise<HttpResponse<unknown>>;
+type Handler = (params: HandlerParams) => Promise<HttpResponse<unknown>>;
 
 export type HandlerCreator = (
   route: UnknownSharedRoute,
