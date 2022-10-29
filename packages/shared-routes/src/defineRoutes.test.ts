@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { defineRoutes, defineRoute } from "./defineRoute";
+import { defineRoutes, defineRoute } from "./defineRoutes";
 
 describe("Shared routes definitions", () => {
   describe("defineRoutes", () => {
@@ -14,7 +14,7 @@ describe("Shared routes definitions", () => {
           getAllBooks: defineRoute({
             method: "post",
             url: "/books",
-            outputSchema: z.array(
+            responseBodySchema: z.array(
               z.object({ id: z.string(), name: z.string() }),
             ),
           }),
@@ -38,7 +38,9 @@ describe("Shared routes definitions", () => {
           method: "get",
           url: "/books",
           queryParamsSchema: z.object({ lala: z.string() }),
-          outputSchema: z.array(z.object({ id: z.string(), name: z.string() })),
+          responseBodySchema: z.array(
+            z.object({ id: z.string(), name: z.string() }),
+          ),
         }),
       });
 
