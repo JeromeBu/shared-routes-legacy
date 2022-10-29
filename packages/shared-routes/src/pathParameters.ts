@@ -39,16 +39,24 @@ export type PathParameters<Route extends string> = string extends Route
         ? PathParameters<Next> : unknown)
       : {};
 
-const keys = <Obj extends Record<string, unknown>>(obj: Obj): (keyof Obj)[] =>
-  Object.keys(obj) as (keyof Obj)[];
-
-export const replacePathWithParams = <U extends Url>(
+export type ReplaceParamsInUrl = <U extends Url>(
   path: U,
   params: PathParameters<U>,
+) => Url;
+
+export const replaceParamsInUrl: ReplaceParamsInUrl = (
+  url,
+  params = {} as PathParameters<typeof url>,
 ): Url => {
   const paramNames = keys(params);
-  if (paramNames.length === 0) return path;
-  return paramNames.reduce((acc, paramName) => {
-    return acc.replace(`:${paramName.toString()}`, params[paramName]);
-  }, path as any);
+  if (paramNames.length === 0) return url;
+  return paramNames.reduce(
+    (acc, paramName) =>
+      acc.replace(`:${paramName.toString()}`, params[paramName]),
+    url as any,
+  );
 };
+
+export const keys = <Obj extends Record<string, unknown>>(
+  obj: Obj,
+): (keyof Obj)[] => Object.keys(obj) as (keyof Obj)[];

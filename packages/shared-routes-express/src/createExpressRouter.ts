@@ -1,14 +1,12 @@
 import type { IRoute, RequestHandler, Router } from "express";
 import type { PathParameters, UnknownSharedRoute } from "shared-routes";
+import { keys } from "shared-routes";
 import { z, ZodError } from "zod";
 
 type ExpressSharedRouteOptions = {
   skipBodyValidation?: boolean;
   skipQueryValidation?: boolean;
 };
-
-const keys = <Obj extends Record<string, unknown>>(obj: Obj): (keyof Obj)[] =>
-  Object.keys(obj) as (keyof Obj)[];
 
 const makeValidationMiddleware =
   (
@@ -73,12 +71,15 @@ export const createExpressSharedRouter = <
 
   keys(sharedRoutes).forEach((routeName) => {
     const sharedRoute = sharedRoutes[routeName];
-    const handler = assignHandlersToExpressRouter(expressRouter, sharedRoute, {
-      skipQueryValidation: false,
-      skipBodyValidation: false,
-      ...options,
-    });
-    objectOfHandlers[routeName] = handler;
+    objectOfHandlers[routeName] = assignHandlersToExpressRouter(
+      expressRouter,
+      sharedRoute,
+      {
+        skipQueryValidation: false,
+        skipBodyValidation: false,
+        ...options,
+      },
+    );
   });
 
   return {

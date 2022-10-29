@@ -1,4 +1,4 @@
-import { replacePathWithParams } from "shared-routes";
+import { replaceParamsInUrl } from "shared-routes";
 import type { PathParameters, UnknownSharedRoute } from "shared-routes";
 import { z } from "zod";
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
@@ -10,7 +10,7 @@ const applyMethodAndUrl = (axios: AxiosInstance, route: UnknownSharedRoute) => {
   return ({ params, query, body, headers }: any) =>
     axios.request({
       method: route.method,
-      url: replacePathWithParams(route.url, params),
+      url: replaceParamsInUrl(route.url, params),
       data: body,
       params: query,
       headers: { ...axios.defaults.headers, ...headers },
