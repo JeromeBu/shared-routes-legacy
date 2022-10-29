@@ -45,28 +45,8 @@ const assignHandlersToExpressRouter = (
   const validationMiddleware = makeValidationMiddleware(route, options);
   const path = `/${route.path}`;
 
-  switch (route.verb) {
-    case "get":
-      return (...handlers: RequestHandler[]) =>
-        expressRouter.route(path).get(validationMiddleware, handlers);
-    case "post":
-      return (...handlers: RequestHandler[]) =>
-        expressRouter.route(path).post(validationMiddleware, handlers);
-    case "put":
-      return (...handlers: RequestHandler[]) =>
-        expressRouter.route(path).put(validationMiddleware, handlers);
-    case "patch":
-      return (...handlers: RequestHandler[]) =>
-        expressRouter.route(path).patch(validationMiddleware, handlers);
-    case "delete":
-      return (...handlers: RequestHandler[]) =>
-        expressRouter.route(path).delete(validationMiddleware, handlers);
-    default:
-      const shouldNotHappen: never = route.verb;
-      throw new Error(route.verb + " : This HTTP verb is not handle");
-
-      return shouldNotHappen;
-  }
+  return (...handlers: RequestHandler[]) =>
+    expressRouter.route(path)[route.verb](validationMiddleware, handlers);
 };
 
 export const createExpressSharedRouter = <
