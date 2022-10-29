@@ -3,7 +3,7 @@ import { Url } from "./pathParameters";
 
 type OptionalFields<Body, Query, Output> = {
   bodySchema?: z.Schema<Body>;
-  querySchema?: z.Schema<Query>;
+  queryParamsSchema?: z.Schema<Query>;
   outputSchema?: z.Schema<Output>;
 };
 
@@ -34,7 +34,7 @@ export const defineRoute = <
   route: SharedRouteWithOptional<U, Body, Query, Output>,
 ): SharedRoute<U, Body, Query, Output> => ({
   bodySchema: z.object({}).strict() as any,
-  querySchema: z.object({}).strict() as any,
+  queryParamsSchema: z.object({}).strict() as any,
   outputSchema: z.void() as any,
   ...route,
 });

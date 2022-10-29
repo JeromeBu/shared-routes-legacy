@@ -16,7 +16,7 @@ describe("createAxiosSharedCaller", () => {
       getAllBooks: defineRoute({
         method: "get",
         url: "/books",
-        querySchema: z.object({ max: z.number() }),
+        queryParamsSchema: z.object({ max: z.number() }),
         outputSchema: z.array(bookSchema),
       }),
       getByTitle: defineRoute({

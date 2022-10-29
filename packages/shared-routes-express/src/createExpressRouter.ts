@@ -23,7 +23,7 @@ const makeValidationMiddleware =
         req.body = route.bodySchema.parse(req.body) as any;
       }
       if (!options.skipQueryValidation) {
-        req.query = route.querySchema.parse(req.query) as any;
+        req.query = route.queryParamsSchema.parse(req.query) as any;
       }
       next();
     } catch (e) {
@@ -62,7 +62,7 @@ export const createExpressSharedRouter = <
         PathParameters<SharedRoutes[Route]["url"]>,
         z.infer<SharedRoutes[Route]["outputSchema"]>,
         z.infer<SharedRoutes[Route]["bodySchema"]>,
-        z.infer<SharedRoutes[Route]["querySchema"]>,
+        z.infer<SharedRoutes[Route]["queryParamsSchema"]>,
         any
       >[]
     ) => IRoute;
