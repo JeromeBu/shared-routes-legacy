@@ -1,5 +1,13 @@
 # shared-routes-supertest
 
+## 0.5.2
+
+### Patch Changes
+
+- make handlers generic and improve defineRoutes interface
+- Updated dependencies
+  - shared-routes@0.5.1
+
 ## 0.5.0
 
 ### Minor Changes

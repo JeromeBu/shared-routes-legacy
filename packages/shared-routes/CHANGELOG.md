@@ -1,5 +1,11 @@
 # shared-routes
 
+## 0.5.1
+
+### Patch Changes
+
+- make handlers generic and improve defineRoutes interface
+
 ## 0.5.0
 
 ### Minor Changes
