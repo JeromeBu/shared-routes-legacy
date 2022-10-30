@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { defineRoutes, defineRoute } from "./defineRoutes";
+import { defineRoutes, defineRoute, listRoutes } from "./defineRoutes";
 
 describe("Shared routes definitions", () => {
   describe("defineRoutes", () => {
@@ -28,7 +28,7 @@ describe("Shared routes definitions", () => {
     });
 
     it("create routes with the expected types and shows list of routes", () => {
-      const { routes, listRoutes } = defineRoutes({
+      const routes = defineRoutes({
         addBook: defineRoute({
           method: "post",
           url: "/books",
@@ -47,7 +47,7 @@ describe("Shared routes definitions", () => {
       expect(() =>
         routes.getAllBooks.bodySchema.parse({ yo: "lala" }),
       ).toThrow();
-      expect(listRoutes()).toEqual(["POST /books", "GET /books"]);
+      expect(listRoutes(routes)).toEqual(["POST /books", "GET /books"]);
     });
   });
 });

@@ -1,4 +1,4 @@
-import { defineRoute, defineRoutes } from "shared-routes";
+import { defineRoute, defineRoutes, listRoutes } from "shared-routes";
 import { createExpressSharedRouter } from "shared-routes-express/src";
 import { z } from "zod";
 import { createSupertestSharedClient } from "./createSupertestSharedClient";
@@ -20,7 +20,7 @@ const bookSchema: z.Schema<Book> = z.object({
 
 const withAuthorizationSchema = z.object({ authorization: z.string() });
 
-const { routes, listRoutes } = defineRoutes({
+const routes = defineRoutes({
   addBook: defineRoute({
     method: "post",
     url: "/books",
@@ -103,7 +103,7 @@ describe("createExpressSharedRouter and createSupertestSharedCaller", () => {
       body: heyBook,
       headers: { authorization: "not-the-right-token" },
     });
-    expect(listRoutes()).toEqual([
+    expect(listRoutes(routes)).toEqual([
       "POST /books",
       "GET /books",
       "GET /books/:title",

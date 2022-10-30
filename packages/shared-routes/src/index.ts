@@ -4,7 +4,7 @@ export type {
   HttpClient,
   HttpResponse,
 } from "./configureCreateHttpClient";
-export { defineRoutes, defineRoute } from "./defineRoutes";
+export { defineRoutes, defineRoute, listRoutes } from "./defineRoutes";
 export type {
   HttpMethod,
   SharedRoute,

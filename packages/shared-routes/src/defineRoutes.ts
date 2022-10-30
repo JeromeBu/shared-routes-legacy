@@ -79,6 +79,10 @@ export const defineRoutes = <
 >(routes: {
   [K in keyof T]: T[K];
 }) => {
-  const routeList = verifyRoutesUniqAndListRoutes(routes);
-  return { routes, listRoutes: () => routeList };
+  verifyRoutesUniqAndListRoutes(routes);
+  return routes;
 };
+export const listRoutes = <
+  T extends Record<string, UnknownSharedRoute>,
+>(routes: { [K in keyof T]: T[K] }): string[] =>
+  verifyRoutesUniqAndListRoutes(routes);

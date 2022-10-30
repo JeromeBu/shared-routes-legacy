@@ -1,5 +1,5 @@
 import axios from "axios";
-import { defineRoute, defineRoutes } from "shared-routes";
+import { defineRoute, defineRoutes, listRoutes } from "shared-routes";
 import { z } from "zod";
 import { createAxiosSharedClient } from "./createAxiosSharedClient";
 
@@ -8,7 +8,7 @@ describe("createAxiosSharedCaller", () => {
     const bookSchema = z.object({ title: z.string(), author: z.string() });
     const withAuthorizationSchema = z.object({ authorization: z.string() });
 
-    const { routes, listRoutes } = defineRoutes({
+    const routes = defineRoutes({
       addBook: defineRoute({
         method: "post",
         url: "/books",
@@ -29,7 +29,7 @@ describe("createAxiosSharedCaller", () => {
 
     const axiosSharedCaller = createAxiosSharedClient(routes, axios);
 
-    expect(listRoutes()).toEqual([
+    expect(listRoutes(routes)).toEqual([
       "POST /books",
       "GET /books",
       "GET /books/:title",
@@ -65,7 +65,7 @@ describe("createAxiosSharedCaller", () => {
       completed: z.boolean(),
     });
 
-    const { routes, listRoutes } = defineRoutes({
+    const routes = defineRoutes({
       getByTodoById: defineRoute({
         method: "get",
         url: "https://jsonplaceholder.typicode.com/todos/:todoId",
@@ -73,7 +73,7 @@ describe("createAxiosSharedCaller", () => {
       }),
     });
 
-    expect(listRoutes()).toEqual([
+    expect(listRoutes(routes)).toEqual([
       "GET https://jsonplaceholder.typicode.com/todos/:todoid",
     ]);
 
