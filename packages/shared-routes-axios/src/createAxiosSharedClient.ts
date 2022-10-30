@@ -3,7 +3,7 @@ import type { UnknownSharedRoute } from "shared-routes";
 import { configureCreateHttpClient, HandlerCreator } from "shared-routes";
 
 export const createAxiosHandlerCreator =
-  (axios: AxiosInstance): HandlerCreator =>
+  (axios: AxiosInstance): HandlerCreator<any> =>
   (route, replaceParamsInUrl) =>
   async ({ body, urlParams, queryParams, headers } = {}) => {
     const { data, ...rest } = await axios.request({

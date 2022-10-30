@@ -1,5 +1,9 @@
 export { configureCreateHttpClient } from "./configureCreateHttpClient";
-export type { HandlerCreator, HttpClient } from "./configureCreateHttpClient";
+export type {
+  HandlerCreator,
+  HttpClient,
+  HttpResponse,
+} from "./configureCreateHttpClient";
 export { defineRoutes, defineRoute } from "./defineRoutes";
 export type {
   HttpMethod,
