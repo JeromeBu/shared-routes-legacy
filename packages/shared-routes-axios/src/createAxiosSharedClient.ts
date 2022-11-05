@@ -1,17 +1,23 @@
 import type { AxiosInstance } from "axios";
-import type { UnknownSharedRoute } from "shared-routes";
+import type { UnknownSharedRoute, Url } from "shared-routes";
 import { configureCreateHttpClient, HandlerCreator } from "shared-routes";
 
 export const createAxiosHandlerCreator =
-  (axios: AxiosInstance): HandlerCreator<any> =>
-  (route, replaceParamsInUrl) =>
+  <SharedRoutes extends Record<string, UnknownSharedRoute>>(
+    axios: AxiosInstance,
+  ): HandlerCreator<SharedRoutes> =>
+  (routeName, routes, replaceParamsInUrl) =>
   async ({ body, urlParams, queryParams, headers } = {}) => {
+    const route = routes[routeName];
     const { data, ...rest } = await axios.request({
       method: route.method,
-      url: replaceParamsInUrl(route.url, urlParams),
+      url: replaceParamsInUrl(route.url, urlParams as Url),
       data: body,
       params: queryParams,
-      headers: { ...axios.defaults.headers, ...headers },
+      headers: {
+        ...axios.defaults.headers,
+        ...(headers ?? ({} as any)),
+      },
     });
     return { ...rest, body: data };
   };
