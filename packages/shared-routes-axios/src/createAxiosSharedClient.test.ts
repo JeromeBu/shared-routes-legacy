@@ -1,7 +1,21 @@
-import axios from "axios";
-import { defineRoute, defineRoutes, listRoutes } from "shared-routes";
+import axios, { AxiosInstance } from "axios";
+import {
+  configureCreateHttpClient,
+  defineRoute,
+  defineRoutes,
+  HandlerCreator,
+  listRoutes,
+  UnknownSharedRoute,
+} from "shared-routes";
+import {
+  Handler,
+  HttpClient,
+} from "shared-routes/src/configureCreateHttpClient";
 import { z } from "zod";
-import { createAxiosSharedClient } from "./createAxiosSharedClient";
+import {
+  createAxiosHandlerCreator,
+  createAxiosSharedClient,
+} from "./createAxiosSharedClient";
 
 describe("createAxiosSharedCaller", () => {
   it("create a caller from axios and sharedRoutes object", async () => {

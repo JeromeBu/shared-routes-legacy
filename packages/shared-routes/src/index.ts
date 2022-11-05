@@ -1,3 +1,4 @@
+export { createCustomSharedClient } from "./createCustomSharedClient";
 export { configureCreateHttpClient } from "./configureCreateHttpClient";
 export type {
   HandlerCreator,
@@ -9,6 +10,7 @@ export type {
   HttpMethod,
   SharedRoute,
   UnknownSharedRoute,
+  UnknownSharedRouteWithUrl,
 } from "./defineRoutes";
 export type { PathParameters, Url } from "./pathParameters";
 export { keys } from "./pathParameters";

@@ -23,9 +23,9 @@ type HandlerParams<SharedRoute extends UnknownSharedRoute> =
   & (z.infer<SharedRoute["queryParamsSchema"]> extends void ? AnyObj : { queryParams: z.infer<SharedRoute["queryParamsSchema"]> })
   & (z.infer<SharedRoute["headersSchema"]> extends void ? AnyObj : { headers: z.infer<SharedRoute["headersSchema"]> })
 
-type Handler<SharedRoute extends UnknownSharedRoute> = (
+export type Handler<SharedRoute extends UnknownSharedRoute> = (
   params: HandlerParams<SharedRoute> | EmptyObj,
-) => Promise<HttpResponse<unknown>>;
+) => Promise<HttpResponse<z.infer<SharedRoute["responseBodySchema"]>>>;
 
 export type HttpClient<
   SharedRoutes extends Record<string, UnknownSharedRoute>,
@@ -40,20 +40,29 @@ export type HttpClient<
   >;
 };
 
-export type HandlerCreator<SharedRoute extends UnknownSharedRoute> = (
-  route: UnknownSharedRoute,
+export type HandlerCreator<
+  SharedRoutes extends Record<string, UnknownSharedRoute>,
+> = <R extends keyof SharedRoutes>(
+  routeName: R,
+  routes: SharedRoutes,
   replaceParamsInUrl: ReplaceParamsInUrl,
-) => Handler<SharedRoute>;
+) => Handler<SharedRoutes[R]>;
 
 export const configureCreateHttpClient =
-  (handlerCreator: HandlerCreator<UnknownSharedRoute>) =>
+  <S extends Record<string, UnknownSharedRoute>>(
+    handlerCreator: HandlerCreator<S>,
+  ) =>
   <SharedRoutes extends Record<string, UnknownSharedRoute>>(
     routes: SharedRoutes,
   ): HttpClient<SharedRoutes> =>
     keys(routes).reduce(
       (acc, routeName) => ({
         ...acc,
-        [routeName]: handlerCreator(routes[routeName], replaceParamsInUrl),
+        [routeName]: handlerCreator(
+          routeName as string,
+          routes as unknown as S,
+          replaceParamsInUrl,
+        ),
       }),
       {} as HttpClient<SharedRoutes>,
     );

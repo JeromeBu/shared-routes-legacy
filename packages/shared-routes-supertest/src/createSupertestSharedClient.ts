@@ -10,15 +10,17 @@ const supertestRequestToCorrectHttpMethod = (
 
 export const createSupertestHandlerCreator =
   (supertestRequest: SuperTest<Test>): HandlerCreator<any> =>
-  (route, replaceParamsInUrl) =>
-  async ({ headers, body, queryParams, urlParams } = {}) =>
-    supertestRequestToCorrectHttpMethod(
-      supertestRequest,
-      route.method,
-    )(replaceParamsInUrl(route.url, urlParams))
-      .send(body)
-      .set(headers ?? {})
-      .query(queryParams);
+  (routeName, routes, replaceParamsInUrl) => {
+    const route = routes[routeName];
+    return async ({ headers, body, queryParams, urlParams } = {}) =>
+      supertestRequestToCorrectHttpMethod(
+        supertestRequest,
+        route.method,
+      )(replaceParamsInUrl(route.url, urlParams))
+        .send(body)
+        .set(headers ?? {})
+        .query(queryParams);
+  };
 
 export const createSupertestSharedClient = <
   SharedRoutes extends Record<string, UnknownSharedRoute>,

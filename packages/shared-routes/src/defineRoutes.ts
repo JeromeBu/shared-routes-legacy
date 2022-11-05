@@ -38,6 +38,13 @@ export type UnknownSharedRoute = SharedRoute<
   unknown,
   unknown
 >;
+export type UnknownSharedRouteWithUrl<U extends Url> = SharedRoute<
+  U,
+  unknown,
+  unknown,
+  unknown,
+  unknown
+>;
 
 export const defineRoute = <
   U extends Url,
