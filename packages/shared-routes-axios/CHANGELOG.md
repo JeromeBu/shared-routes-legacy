@@ -1,5 +1,15 @@
 # shared-routes-axios
 
+## 0.5.3
+
+### Patch Changes
+
+- 6d99e67: create shared-route-openapi to be able to generate openapi json from shared-route
+- 9d13f71: add createCustomSharedClient to easly create simulated or tests implementation of http-clients"
+- Updated dependencies [6d99e67]
+- Updated dependencies [9d13f71]
+  - shared-routes@0.5.2
+
 ## 0.5.2
 
 ### Patch Changes
