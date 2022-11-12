@@ -1,5 +1,6 @@
+import * as console from "console";
 import { OpenAPIV3_1 } from "openapi-types";
-import { defineRoute, defineRoutes, UnknownSharedRoute } from "shared-routes";
+import { defineRoute, defineRoutes } from "shared-routes";
 import { z } from "zod";
 import { createOpenApiGenerator } from "./createOpenApiGenerator";
 
@@ -29,21 +30,33 @@ const routes = defineRoutes({
   }),
 });
 
-const generateOpenApi = createOpenApiGenerator(routes, {
+const rootInfo = {
   info: {
     title: "My book API",
     description: "My test openApi description",
     version: "1",
   },
   openapi: "3.0.0",
-});
+  tags: [{ name: "book" as const, description: "My books API" }],
+};
+
+const generateOpenApi = createOpenApiGenerator(routes, rootInfo);
 
 const openApiJSON = generateOpenApi({
-  addBook: { description: "To add a book" },
-  getAllBooks: { description: "To get all books" },
+  addBook: {
+    summary: "To add a book",
+    description: "To add a book",
+    tags: ["book"],
+  },
+  getAllBooks: {
+    summary: "To get all books",
+    description: "To get all books",
+    tags: ["book"],
+  },
   getByTitle: {
+    summary: "Get book from title",
     description: "To a book from its title",
-    summary: "Mon résumé",
+    tags: ["book"],
     servers: [
       {
         url: "http://truc.com",
@@ -72,16 +85,12 @@ it("has the expected shape", () => {
   };
 
   const expected: OpenAPIV3_1.Document = {
-    info: {
-      title: "My book API",
-      description: "My test openApi description",
-      version: "1",
-    },
-    openapi: "3.0.0",
+    ...rootInfo,
     paths: {
       "/books/{title}": {
         get: {
           description: "To a book from its title",
+          tags: ["book"],
           parameters: [
             {
               name: "title",
@@ -100,7 +109,7 @@ it("has the expected shape", () => {
               },
             },
           },
-          summary: "Mon résumé",
+          summary: "Get book from title",
           servers: [
             {
               url: "http://truc.com",
@@ -118,7 +127,9 @@ it("has the expected shape", () => {
       },
       "/books": {
         get: {
+          summary: "To get all books",
           description: "To get all books",
+          tags: ["book"],
           parameters: [
             {
               name: "max",
@@ -148,7 +159,9 @@ it("has the expected shape", () => {
           },
         },
         post: {
+          summary: "To add a book",
           description: "To add a book",
+          tags: ["book"],
           parameters: [
             {
               in: "header",
@@ -176,6 +189,8 @@ it("has the expected shape", () => {
       },
     },
   };
+
+  console.log(JSON.stringify(expected, null, 2));
 
   expect(openApiJSON).toEqual(expected);
 });
