@@ -96,6 +96,25 @@ importers:
       tsconfig: link:../tsconfig
       typescript: 4.5.5
 
+  packages/shared-routes-openapi:
+    specifiers:
+      config: workspace:*
+      openapi-types: ^12.0.2
+      shared-routes: workspace:*
+      tsconfig: workspace:*
+      typescript: ^4.5.3
+      zod: ^3.11.6
+      zod-to-json-schema: ^3.18.1
+    dependencies:
+      openapi-types: 12.0.2
+      shared-routes: link:../shared-routes
+      zod: 3.11.6
+      zod-to-json-schema: 3.18.1_zod@3.11.6
+    devDependencies:
+      config: link:../config
+      tsconfig: link:../tsconfig
+      typescript: 4.8.2
+
   packages/shared-routes-supertest:
     specifiers:
       '@types/body-parser': ^1.19.2
@@ -5206,6 +5225,10 @@ packages:
       mimic-fn: 4.0.0
     dev: true
 
+  /openapi-types/12.0.2:
+    resolution: {integrity: sha512-GuTo7FyZjOIWVhIhQSWJVaws6A82sWIGyQogxxYBYKZ0NBdyP2CYSIgOwFfSB+UVoPExk/YzFpyYitHS8KVZtA==}
+    dev: false
+
   /optionator/0.8.3:
     resolution: {integrity: sha512-+IW9pACdk3XWmmTXG8m3upGUJst5XRGzxMRjXzAuJ1XnIFNvfhjjIuYkDvysnPQ7qzqVzLt78BCruntqRhWQbA==}
     engines: {node: '>= 0.8.0'}
@@ -6658,6 +6681,14 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
     dev: true
+
+  /zod-to-json-schema/3.18.1_zod@3.11.6:
+    resolution: {integrity: sha512-YFP4dAZR2GHDkTOZL7E7p2E3/yoUZeB5RD797JEpJTyh/L+9WvIK/tEMuF+MhzDPhQWXlkSugxmO8nbdXjJKYA==}
+    peerDependencies:
+      zod: ^3.18.0
+    dependencies:
+      zod: 3.11.6
+    dev: false
 
   /zod/3.11.6:
     resolution: {integrity: sha512-daZ80A81I3/9lIydI44motWe6n59kRBfNzTuS2bfzVh1nAXi667TOTWWtatxyG+fwgNUiagSj/CWZwRRbevJIg==}
