@@ -1,8 +1,4 @@
-import {
-  ExternalDocumentationObject,
-  OpenAPIV3 as OpenAPI,
-  OperationObject,
-} from "openapi-types";
+import { OpenAPIV3 as OpenAPI } from "openapi-types";
 import { keys, UnknownSharedRoute } from "shared-routes";
 import { z, ZodFirstPartyTypeKind } from "zod";
 import zodToJsonSchema from "zod-to-json-schema";
@@ -18,14 +14,47 @@ type CreateOpenApiGenerator = <
 >(
   sharedRoutes: SharedRoutes,
   openApiRootDoc: Omit<OpenAPI.Document, "paths"> & {
-    tags: TypedTag<TagName>[];
+    tags?: TypedTag<TagName>[];
   },
 ) => (
   extraDataByRoute: Partial<{
     [R in keyof SharedRoutes]: Omit<
       OpenAPI.PathItemObject,
       OpenAPI.HttpMethods
-    > & { tags?: TagName[] };
+    > & {
+      tags?: TagName[];
+      extraDocumentation?: {
+        body?: OpenAPI.BaseSchemaObject & {
+          properties?: Partial<
+            Record<
+              keyof z.infer<SharedRoutes[R]["bodySchema"]>,
+              OpenAPI.BaseSchemaObject
+            >
+          >;
+        };
+        queryParams?: Partial<
+          Record<
+            keyof z.infer<SharedRoutes[R]["queryParamsSchema"]>,
+            Partial<OpenAPI.ParameterObject>
+          >
+        >;
+        headerParams?: Partial<
+          Record<
+            keyof z.infer<SharedRoutes[R]["headersSchema"]>,
+            Partial<OpenAPI.ParameterObject>
+          >
+        >;
+
+        responseBody?: OpenAPI.BaseSchemaObject & {
+          properties?: Partial<
+            Record<
+              keyof z.infer<SharedRoutes[R]["queryParamsSchema"]>,
+              OpenAPI.BaseSchemaObject
+            >
+          >;
+        };
+      };
+    };
   }>,
 ) => OpenAPI.Document;
 
@@ -34,6 +63,8 @@ export const createOpenApiGenerator: CreateOpenApiGenerator =
     ...openApiRootDoc,
     paths: keys(sharedRoutes).reduce((acc, routeName) => {
       const route = sharedRoutes[routeName];
+      const { extraDocumentation, ...extraDataForRoute } =
+        extraDataByRoute[routeName] ?? {};
       const responseSchema = zodToOpenApi(route.responseBodySchema);
       const responseSchemaType:
         | OpenAPI.NonArraySchemaObjectType
@@ -45,10 +76,18 @@ export const createOpenApiGenerator: CreateOpenApiGenerator =
       const parameters = [
         ...(pathParams.length > 0 ? pathParams : []),
         ...(!isShapeObjectEmpty(route.queryParamsSchema)
-          ? zodObjectToParameters(route.queryParamsSchema, "query")
+          ? zodObjectToParameters(
+              route.queryParamsSchema,
+              "query",
+              extraDocumentation?.queryParams,
+            )
           : []),
         ...(!isShapeObjectEmpty(route.headersSchema)
-          ? zodObjectToParameters(route.headersSchema, "header")
+          ? zodObjectToParameters(
+              route.headersSchema,
+              "header",
+              extraDocumentation?.headerParams,
+            )
           : []),
       ];
 
@@ -57,7 +96,7 @@ export const createOpenApiGenerator: CreateOpenApiGenerator =
         [formattedUrl]: {
           ...acc[formattedUrl],
           [route.method]: {
-            ...extraDataByRoute[routeName],
+            ...extraDataForRoute,
             ...(parameters.length > 0 && {
               parameters,
             }),
@@ -67,7 +106,10 @@ export const createOpenApiGenerator: CreateOpenApiGenerator =
                 required: true,
                 content: {
                   "application/json": {
-                    schema: zodToOpenApi(route.bodySchema),
+                    schema: {
+                      ...extraDocumentation?.body,
+                      ...zodToOpenApi(route.bodySchema),
+                    },
                   },
                 },
               },
@@ -142,11 +184,15 @@ const isShapeObjectEmpty = <T>(schema: z.Schema<T>): boolean => {
 const zodObjectToParameters = <T>(
   schema: z.Schema<T>,
   paramKind: ParamKind,
+  extraDocumentation: Partial<
+    Record<keyof T, Partial<OpenAPI.ParameterObject>>
+  > = {},
 ): Param[] => {
   const shape = getShape(schema);
 
   return Object.keys(shape).reduce((acc, paramName): Param[] => {
     const paramSchema = shape[paramName];
+    const extraDoc = extraDocumentation[paramName as keyof T];
     const initialTypeName = getTypeName(paramSchema);
     const required = initialTypeName !== "ZodOptional";
 
@@ -157,6 +203,7 @@ const zodObjectToParameters = <T>(
     return [
       ...acc,
       {
+        ...extraDoc,
         in: paramKind,
         name: paramName,
         required,
