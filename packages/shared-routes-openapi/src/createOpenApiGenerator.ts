@@ -1,20 +1,31 @@
-import { OpenAPIV3 as OpenAPI } from "openapi-types";
+import {
+  ExternalDocumentationObject,
+  OpenAPIV3 as OpenAPI,
+  OperationObject,
+} from "openapi-types";
 import { keys, UnknownSharedRoute } from "shared-routes";
 import { z, ZodFirstPartyTypeKind } from "zod";
 import zodToJsonSchema from "zod-to-json-schema";
 import { ZodRawShape } from "zod/lib/types";
 
+type TypedTag<T extends string> = {
+  name: T;
+};
+
 type CreateOpenApiGenerator = <
   SharedRoutes extends Record<string, UnknownSharedRoute>,
+  TagName extends string,
 >(
   sharedRoutes: SharedRoutes,
-  openApiRootDoc: Omit<OpenAPI.Document, "paths">,
+  openApiRootDoc: Omit<OpenAPI.Document, "paths"> & {
+    tags: TypedTag<TagName>[];
+  },
 ) => (
   extraDataByRoute: Partial<{
     [R in keyof SharedRoutes]: Omit<
       OpenAPI.PathItemObject,
       OpenAPI.HttpMethods
-    >;
+    > & { tags?: TagName[] };
   }>,
 ) => OpenAPI.Document;
 
