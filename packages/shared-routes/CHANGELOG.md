@@ -1,5 +1,12 @@
 # shared-routes
 
+## 0.5.2
+
+### Patch Changes
+
+- 6d99e67: create shared-route-openapi to be able to generate openapi json from shared-route
+- 9d13f71: add createCustomSharedClient to easly create simulated or tests implementation of http-clients"
+
 ## 0.5.1
 
 ### Patch Changes

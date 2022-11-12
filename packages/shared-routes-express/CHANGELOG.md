@@ -1,5 +1,13 @@
 # shared-routes-express
 
+## 0.5.3
+
+### Patch Changes
+
+- Updated dependencies [6d99e67]
+- Updated dependencies [9d13f71]
+  - shared-routes@0.5.2
+
 ## 0.5.2
 
 ### Patch Changes
