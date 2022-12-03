@@ -81,7 +81,7 @@ Here is an example of usage with express, using the previously defined `myShared
 ```typescript
 import express, {Router as ExpressRouter} from "express";
 import bodyParser from "body-parser";
-import {createExpressSharedRouter} from "packages/shared-routes-express/src/index";
+import {createExpressSharedRouter} from "shared-routes-express";
 import {sharedRouters} from "path/to/where/sharedRouters/are/defined"
 
 const fakeAuthToken = "my-token";
