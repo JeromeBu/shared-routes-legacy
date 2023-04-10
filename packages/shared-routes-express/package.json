@@ -10,7 +10,7 @@
     "build": "rm -rf ./lib && tsc -p tsconfig.cjs.json",
     "watch": "tsc -p tsconfig.cjs.json --watch",
     "format": "pnpm -w format-cmd --write ./packages/shared-routes-express/src/",
-    "lint": "eslint src --fix",
+    "lint": "eslint --fix src",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
@@ -21,6 +21,6 @@
   "dependencies": {
     "@types/express": "^4.17.13",
     "shared-routes": "workspace:*",
-    "zod": "^3.11.6"
+    "zod": "^3.21.4"
   }
 }

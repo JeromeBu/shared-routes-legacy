@@ -27,7 +27,7 @@ type CreateOpenApiGenerator = <
         body?: OpenAPI.BaseSchemaObject & {
           properties?: Partial<
             Record<
-              keyof z.infer<SharedRoutes[R]["bodySchema"]>,
+              keyof z.infer<SharedRoutes[R]["requestBodySchema"]>,
               OpenAPI.BaseSchemaObject
             >
           >;
@@ -101,14 +101,14 @@ export const createOpenApiGenerator: CreateOpenApiGenerator =
               parameters,
             }),
 
-            ...(!isShapeObjectEmpty(route.bodySchema) && {
+            ...(!isShapeObjectEmpty(route.requestBodySchema) && {
               requestBody: {
                 required: true,
                 content: {
                   "application/json": {
                     schema: {
                       ...extraDocumentation?.body,
-                      ...zodToOpenApi(route.bodySchema),
+                      ...zodToOpenApi(route.requestBodySchema),
                     },
                   },
                 },

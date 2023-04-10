@@ -2,7 +2,7 @@ import { z } from "zod";
 import { Url } from "./pathParameters";
 
 type OptionalFields<Body, Query, ResponseBody, Headers> = {
-  bodySchema?: z.Schema<Body>;
+  requestBodySchema?: z.Schema<Body>;
   queryParamsSchema?: z.Schema<Query>;
   responseBodySchema?: z.Schema<ResponseBody>;
   headersSchema?: z.Schema<Headers>;
@@ -55,7 +55,7 @@ export const defineRoute = <
 >(
   route: SharedRouteWithOptional<U, Body, Query, ResponseBody, Headers>,
 ): SharedRoute<U, Body, Query, ResponseBody, Headers> => ({
-  bodySchema: z.object({}).strict() as any,
+  requestBodySchema: z.object({}).strict() as any,
   queryParamsSchema: z.object({}).strict() as any,
   responseBodySchema: z.void() as any,
   headersSchema: z.object({}) as any,

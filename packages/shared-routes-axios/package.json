@@ -23,6 +23,6 @@
   "dependencies": {
     "axios": "^0.26.0",
     "shared-routes": "workspace:*",
-    "zod": "^3.11.6"
+    "zod": "^3.21.4"
   }
 }

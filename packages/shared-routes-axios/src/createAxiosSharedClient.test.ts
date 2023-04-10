@@ -26,7 +26,7 @@ describe("createAxiosSharedCaller", () => {
       addBook: defineRoute({
         method: "post",
         url: "/books",
-        bodySchema: bookSchema,
+        requestBodySchema: bookSchema,
         headersSchema: withAuthorizationSchema,
       }),
       getAllBooks: defineRoute({
@@ -38,6 +38,7 @@ describe("createAxiosSharedCaller", () => {
       getByTitle: defineRoute({
         method: "get",
         url: "/books/:title",
+        responseBodySchema: bookSchema.or(z.void()),
       }),
     });
 
@@ -49,8 +50,8 @@ describe("createAxiosSharedCaller", () => {
       "GET /books/:title",
     ]);
 
-    // the code below will not past test as no server is receiving the calls,
-    // but it is to show check that typing works fine.
+    // the code below will not past test because no server is receiving the calls,
+    // but it is to checks that typing works fine.
     const notExecuted = async () => {
       const addBookResponse = await axiosSharedCaller.addBook({
         body: { title: "lala", author: "bob" },
@@ -66,7 +67,7 @@ describe("createAxiosSharedCaller", () => {
       const getByTitleResponse = await axiosSharedCaller.getByTitle({
         urlParams: { title: "great" },
       });
-      getByTitleResponse.body; // type is Book[], as expected
+      getByTitleResponse.body; // type is Book | void, as expected
     };
   });
 

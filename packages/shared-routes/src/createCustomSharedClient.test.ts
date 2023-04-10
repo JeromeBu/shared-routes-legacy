@@ -14,7 +14,7 @@ const myRoutes = defineRoutes({
   addBook: defineRoute({
     method: "post",
     url: "/books",
-    bodySchema: bookSchema,
+    requestBodySchema: bookSchema,
     headersSchema: withAuthorizationSchema,
   }),
   getAllBooks: defineRoute({
